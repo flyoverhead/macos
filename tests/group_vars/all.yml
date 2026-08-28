@@ -1,0 +1,6 @@
+---
+
+ansible_user_group: staff
+
+pre_commit_path: '{{ ansible_user_dir }}/.pre-commit'
+pre_commit_hooks_path: '{{ pre_commit_path }}/hooks'

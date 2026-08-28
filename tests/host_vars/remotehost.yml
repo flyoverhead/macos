@@ -1,0 +1,13 @@
+---
+
+# A Tart VM. `tart ip <name>` supplies ANSIBLE_HOST; the cirruslabs base
+# images ship an `admin`/`admin` account.
+
+ansible_host: '{{ lookup("env", "ANSIBLE_HOST") }}'
+ansible_port: '{{ lookup("env", "ANSIBLE_PORT", default="22") }}'
+ansible_user: '{{ lookup("env", "ANSIBLE_USER", default="admin") }}'
+ansible_password: '{{ lookup("env", "ANSIBLE_PASSWORD", default="admin") }}'
+ansible_become_password: '{{ ansible_password }}'
+
+venv_path: '{{ ansible_user_dir }}/.venv'
+tmp_path: '{{ ansible_user_dir }}/tmp'

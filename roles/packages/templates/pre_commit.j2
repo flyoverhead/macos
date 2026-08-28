@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# {{ ansible_managed }}
+#
+# Copies any linter config the repository does not already carry into the
+# working tree, then runs pre-commit over every file.
+
+set -euo pipefail
+
+HOOKS_PATH='{{ packages_pre_commit_hooks_path }}'
+
+for CONFIG in {{ packages_pre_commit_configs | join(' ') }}; do
+  if [ -f "${HOOKS_PATH}/${CONFIG}" ]; then
+    cp -n "${HOOKS_PATH}/${CONFIG}" "${PWD}/${CONFIG}" || true
+  fi
+done
+
+# Shipped without the leading dot, because a file named .gitignore inside the
+# role's files/ directory would be read by git as ignore rules for that
+# directory and the configs beside it would never be committed.
+if [ -f "${HOOKS_PATH}/gitignore" ]; then
+  cp -n "${HOOKS_PATH}/gitignore" "${PWD}/.gitignore" || true
+fi
+
+pre-commit run --all-files

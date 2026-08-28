@@ -1,0 +1,49 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+
+- name: homebrew
+  ansible.builtin.include_tasks:
+    file: homebrew.yml
+  when:
+    - not packages_homebrew_installed
+
+- name: rosetta
+  ansible.builtin.include_tasks:
+    file: rosetta.yml
+  when:
+    - packages_rosetta_install
+
+- name: brew
+  ansible.builtin.include_tasks:
+    file: brew.yml
+  when: >-
+    packages_brew | length > 0
+    or packages_brew_casks | length > 0
+    or packages_brew_taps | length > 0
+
+- name: dmg
+  ansible.builtin.include_tasks:
+    file: dmg.yml
+  loop: '{{ packages_dmg }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: binary
+  ansible.builtin.include_tasks:
+    file: binary.yml
+  loop: '{{ packages_binary }}'
+  loop_control:
+    label: '{{ item.name }}'
+
+- name: pip
+  ansible.builtin.include_tasks:
+    file: pip.yml
+  when:
+    - packages_pip | length > 0
+
+- name: configure
+  ansible.builtin.include_tasks:
+    file: config.yml

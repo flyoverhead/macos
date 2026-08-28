@@ -1,0 +1,17 @@
+---
+
+- name: detect | oh-my-zsh installation
+  ansible.builtin.stat:
+    path: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+  register: ohmyzsh_directory
+
+- name: detect | oh-my-zsh installed
+  ansible.builtin.set_fact:
+    ohmyzsh_installed: '{{ ohmyzsh_directory.stat.exists }}'
+
+# `.zshrc` sources plugins from the Homebrew share directory, whose location
+# differs between Apple Silicon and Intel. Derived from the configured bin path
+# rather than hardcoded, so an Intel prefix works too.
+- name: detect | homebrew share path
+  ansible.builtin.set_fact:
+    ohmyzsh_homebrew_share_path: '{{ ohmyzsh_homebrew_bin_path | dirname }}/share'

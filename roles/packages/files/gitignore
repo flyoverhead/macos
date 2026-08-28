@@ -1,0 +1,13 @@
+.pre-commit-config.yaml
+.tflint.hcl
+.yamllint
+.ansible-lint
+.vscode/*
+.DS_Store
+.terraform*
+*tfstate*
+plan*
+ansible/data
+ansible/roles
+ansible.cfg
+.env

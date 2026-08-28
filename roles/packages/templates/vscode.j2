@@ -1,0 +1,71 @@
+{
+  "ansible.ansible.path": "{{ packages_venv_path }}/bin/ansible",
+  "ansible.ansibleNavigator.path": "{{ packages_venv_path }}/bin/ansible-navigator",
+  "ansible.ansible.useFullyQualifiedCollectionNames": true,
+  "ansible.python.interpreterPath": "{{ packages_venv_path }}/bin/python",
+  "ansible.validation.lint.arguments": "-c {{ packages_pre_commit_hooks_path }}/.ansible-lint --skip-list=yaml[truthy]",
+  "ansible.validation.lint.path": "{{ packages_venv_path }}/bin/ansible-lint",
+  "ansibleVault.executable": "{{ packages_venv_path }}/bin/ansible-vault",
+  "editor.autoClosingQuotes": "always",
+  "editor.autoIndent": "keep",
+  "editor.autoSurround": "languageDefined",
+  "editor.defaultFormatter": "redhat.ansible",
+  "editor.detectIndentation": true,
+  "editor.insertSpaces": true,
+  "editor.quickSuggestions": {
+    "comments": "on",
+    "strings": "on"
+  },
+  "editor.tabSize": 2,
+  "files.associations": {
+    "**/defaults/**/*.yml": "yaml",
+    "**/group_vars/**/*": "yaml",
+    "**/host_vars/**/*": "yaml",
+    "**/vars/**/*.yml": "yaml",
+    "**/tasks/**/*.yml": "ansible",
+    "**/handlers/*.yml": "ansible",
+    "**/meta/*.yml": "ansible",
+    "**/roles/**/*.yml": "ansible",
+    "**/playbooks/**/*.yml": "ansible",
+    "**/ansible/**/inventory.yml": "yaml",
+    "ansible.cfg": "ini",
+    ".gitlab-ci.yml": "yaml",
+    ".env": "shellscript"
+  },
+  "files.autoSave": "onWindowChange",
+  "python.venvFolders": [
+    "{{ packages_venv_path }}"
+  ],
+  "python.venvPath": "{{ packages_venv_path }}",
+  "redhat.telemetry.enabled": false,
+  "terraform.experimentalFeatures.validateOnSave": true,
+  "terminal.explorerKind": "external",
+  "terminal.external.osxExec": "iTerm.app",
+  "terminal.integrated.fontFamily": "MesloLGS NF",
+  "terminal.integrated.scrollback": 1000,
+  "[ansible]": {
+    "editor.defaultFormatter": "redhat.ansible"
+  },
+  "[json]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "workbench.colorTheme": "One Dark Pro",
+  "[yaml]": {
+    "editor.formatOnSave": false,
+    "editor.autoIndent": "keep",
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
+    }
+  },
+  "yaml.customTags": [
+    "!vault scalar",
+    "!reference sequence"
+  ],
+  "yaml.format.singleQuote": true
+}

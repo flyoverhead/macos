@@ -1,0 +1,21 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+
+- name: install
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when:
+    - not dock_dockutil_installed
+
+- name: configure
+  ansible.builtin.include_tasks:
+    file: config.yml
+    apply:
+      environment:
+        PATH: '{{ dock_homebrew_bin_path }}:{{ ansible_env.PATH }}'
+  loop: '{{ dock_items_all | default([]) }}'
+  loop_control:
+    label: '{{ item.name }}'

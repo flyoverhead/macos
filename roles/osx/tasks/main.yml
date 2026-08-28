@@ -1,0 +1,16 @@
+---
+
+- name: set osx defaults
+  community.general.osx_defaults:
+    domain: '{{ item.domain | default("NSGlobalDomain") }}'
+    key: '{{ item.key }}'
+    type: >-
+      {{ item.type
+      | default(osx_type_map[item.value | type_debug] | default("string", true)) }}
+    value: '{{ item.value }}'
+    state: '{{ item.state | default("present") }}'
+  loop: '{{ osx_defaults }}'
+  loop_control:
+    label: '{{ item.domain | default("NSGlobalDomain") }} {{ item.key }}'
+  notify:
+    - osx | reload services

@@ -1,0 +1,20 @@
+---
+
+galaxy_info:
+  role_name: packages
+  namespace: flyoverhead
+  author: flyoverhead
+  description: Homebrew, DMG, binary and pip package installation with application configuration
+  license: GPL-3.0-only
+  min_ansible_version: '2.16'
+  platforms:
+    - name: MacOSX
+      versions:
+        - all
+  galaxy_tags:
+    - homebrew
+    - macos
+    - packages
+    - vscode
+
+dependencies: []

@@ -1,0 +1,43 @@
+---
+
+namespace: flyoverhead
+name: macos
+version: 1.0.0
+readme: README.md
+authors:
+  - flyoverhead
+description: Ansible collection for macOS workstation configuration
+license:
+  - GPL-3.0-only
+tags:
+  - dock
+  - homebrew
+  - macos
+  - ohmyzsh
+  - powerlevel10k
+  - shell
+  - tools
+  - workstation
+  - zsh
+dependencies:
+  community.general: '>=8.0.0'
+
+repository: https://github.com/flyoverhead/macos
+issues: https://github.com/flyoverhead/macos/issues
+
+# fnmatch patterns against the path relative to the collection root, so nested
+# matches need a leading `*` -- a bare `.DS_Store` only ever matches the one at
+# the top level
+build_ignore:
+  - '*.DS_Store'
+  - .ansible
+  - .ansible-lint
+  - .claude
+  - .pre-commit-config.yaml
+  - .tflint.hcl
+  - .vagrant
+  - .venv
+  - .vscode
+  - .yamllint
+  - Taskfile.yml
+  - tests

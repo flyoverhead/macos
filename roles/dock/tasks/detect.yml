@@ -1,0 +1,38 @@
+---
+
+# dockutil comes from Homebrew, installed by this role into
+# `dock_homebrew_bin_path`, so a stat there is both sufficient and check-mode
+# safe -- unlike the `which` call this replaced, which `command` skips in a
+# check run and leaves the branch below with nothing to read.
+- name: detect | dockutil binary
+  ansible.builtin.stat:
+    path: '{{ dock_homebrew_bin_path }}/dockutil'
+  register: dock_dockutil_binary
+
+- name: detect | set dockutil installed fact
+  ansible.builtin.set_fact:
+    dock_dockutil_installed: '{{ dock_dockutil_binary.stat.exists }}'
+
+# The two user-facing lists are normalised into one ordered list so that
+# removals happen before additions and each entry carries its own state.
+- name: detect | items to remove
+  ansible.builtin.set_fact:
+    dock_items_all: >-
+      {{ dock_items_all | default([]) +
+      [{'name': item.name | default(item),
+      'state': item.state | default('absent')}] }}
+  loop: '{{ dock_items_remove }}'
+  loop_control:
+    label: '{{ item.name | default(item) }}'
+
+- name: detect | items to add
+  ansible.builtin.set_fact:
+    dock_items_all: >-
+      {{ dock_items_all | default([]) +
+      [{'name': item.name | default(item),
+      'path': item.path,
+      'position': item.position | default(0),
+      'state': item.state | default('present')}] }}
+  loop: '{{ dock_items_add }}'
+  loop_control:
+    label: '{{ item.name | default(item) }}'

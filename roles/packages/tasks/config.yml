@@ -1,0 +1,234 @@
+---
+
+- name: config | ssh
+  when:
+    - packages_ssh_hosts | length > 0
+  block:
+
+    # `blockinfile` creates the file but not its parent, so ~/.ssh has to
+    # exist first. 0700 because ssh refuses to use a group-readable directory.
+    - name: config | create ssh directory
+      become: true
+      ansible.builtin.file:
+        path: '{{ packages_user_home }}/.ssh'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0700'
+
+    - name: config | create ssh config
+      become: true
+      ansible.builtin.blockinfile:
+        block: '{{ lookup("template", "ssh.j2") }}'
+        path: '{{ packages_user_home }}/.ssh/config'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0600'
+        create: true
+
+- name: config | pre-commit
+  become: true
+  when:
+    - packages_pre_commit_install
+  block:
+
+    - name: config | create pre-commit directory
+      ansible.builtin.file:
+        path: '{{ packages_pre_commit_hooks_path }}'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    - name: config | create pre-commit configs
+      ansible.builtin.copy:
+        src: '{{ role_path }}/files/'
+        dest: '{{ packages_pre_commit_hooks_path }}/'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0644'
+        force: true
+
+    - name: config | create pre-commit script
+      ansible.builtin.template:
+        src: pre_commit.j2
+        dest: '{{ packages_pre_commit_hooks_path }}/pre-commit'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+        force: true
+
+# `no_log` because a signing key is routinely configured here, and the loop
+# label used to print every value to the console.
+- name: config | git config global
+  become: true
+  become_user: '{{ packages_user_name }}'
+  community.general.git_config:
+    name: '{{ git_option.name }}'
+    scope: global
+    state: present
+    value: '{{ git_option.value }}'
+  loop: '{{ packages_git_config }}'
+  loop_control:
+    label: '{{ git_option.name }}'
+    loop_var: git_option
+  no_log: true
+
+- name: config | create .vimrc file
+  become: true
+  ansible.builtin.template:
+    src: vimrc.j2
+    dest: '{{ packages_user_home }}/.vimrc'
+    owner: '{{ packages_user_name }}'
+    group: '{{ packages_user_group }}'
+    mode: '0644'
+    force: true
+
+- name: config | nano
+  when:
+    - '"nano" in packages_brew'
+  block:
+
+    - name: config | create nano directory
+      become: true
+      ansible.builtin.file:
+        path: '{{ packages_user_home }}/.config/nano'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    - name: config | create nano config
+      become: true
+      ansible.builtin.template:
+        src: nanorc.j2
+        dest: '{{ packages_user_home }}/.config/nano/nanorc'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0644'
+
+- name: config | iterm2
+  when:
+    - '"iterm2" in packages_brew_casks'
+  block:
+
+    - name: config | set iterm2 config path
+      ansible.builtin.set_fact:
+        packages_iterm_config_path: >-
+          {{ packages_user_home }}/Library/Application Support/iTerm2/DynamicProfiles
+
+    - name: config | check iterm2 config
+      ansible.builtin.stat:
+        path: '{{ packages_iterm_config_path }}/{{ packages_user_name }}.json'
+      register: packages_iterm_config
+
+    - name: config | configure iterm2
+      when:
+        - not packages_iterm_config.stat.exists
+      block:
+
+        - name: config | create iterm2 config path
+          become: true
+          ansible.builtin.file:
+            path: '{{ packages_iterm_config_path }}'
+            state: directory
+            owner: '{{ packages_user_name }}'
+            group: '{{ packages_user_group }}'
+            mode: '0755'
+
+        # The profile needs a GUID and the template reads it. `command` is
+        # skipped in a check run, leaving `iterm_guid.stdout` undefined for
+        # the template, so this has to run either way -- it only generates a
+        # UUID and touches nothing.
+        - name: config | create iterm2 guid
+          ansible.builtin.command:
+            cmd: uuidgen
+          register: packages_iterm_guid
+          changed_when: false
+          check_mode: false
+
+        - name: config | create iterm2 config
+          become: true
+          ansible.builtin.template:
+            src: iterm.j2
+            dest: '{{ packages_iterm_config_path }}/{{ packages_user_name }}.json'
+            owner: '{{ packages_user_name }}'
+            group: '{{ packages_user_group }}'
+            mode: '0644'
+            force: true
+
+- name: config | visual studio code
+  when: >-
+    ['vscodium', 'visual-studio-code'] |
+    intersect(packages_brew_casks) |
+    length > 0
+  block:
+
+    - name: config | set vscode paths
+      ansible.builtin.set_fact:
+        packages_vscode_executable: >-
+          {{ 'code' if 'visual-studio-code' in packages_brew_casks else 'codium' }}
+        packages_vscode_config_path: >-
+          {{ packages_user_home }}/Library/Application Support/{{
+          'Code' if 'visual-studio-code' in packages_brew_casks else 'VSCodium' }}/User
+
+    # `loop_var` was `vscode_extension`, the same name as the module, which
+    # breaks once the module is addressed by its FQCN.
+    - name: config | install vscode extensions
+      become: true
+      become_user: '{{ packages_user_name }}'
+      flyoverhead.macos.vscode_extension:
+        executable: '{{ packages_vscode_executable }}'
+        name: '{{ extension }}'
+        state: present
+      loop: '{{ packages_vscode_extensions }}'
+      loop_control:
+        loop_var: extension
+      environment:
+        PATH: '{{ packages_homebrew_bin_path }}:{{ ansible_env.PATH }}'
+
+    - name: config | create vscode config path
+      become: true
+      ansible.builtin.file:
+        path: '{{ packages_vscode_config_path }}'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    - name: config | create vscode config
+      become: true
+      ansible.builtin.template:
+        src: vscode.j2
+        dest: '{{ packages_vscode_config_path }}/settings.json'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0644'
+        force: true
+
+- name: config | docker
+  become: true
+  when:
+    - '"docker" in packages_brew_casks'
+    - packages_docker_config | length > 0
+  block:
+
+    - name: config | create docker directory
+      ansible.builtin.file:
+        path: '{{ packages_user_home }}/.docker'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    # `no_log` because `packages_docker_config` carries registry credentials
+    # under `auths`, and a diff would otherwise print them.
+    - name: config | create docker config
+      ansible.builtin.template:
+        src: docker.j2
+        dest: '{{ packages_user_home }}/.docker/config.json'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0600'
+        force: true
+      no_log: true

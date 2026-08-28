@@ -1,0 +1,16 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+
+- name: install
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when: >-
+    not ohmyzsh_installed
+    or ohmyzsh_force_reinstall
+
+- name: config
+  ansible.builtin.include_tasks:
+    file: config.yml

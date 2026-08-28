@@ -1,0 +1,22 @@
+---
+
+# .ansible-lint
+# https://ansible.readthedocs.io/projects/lint/configuring/#ansible-lint-configuration
+
+profile: production # min, basic, moderate, safety, shared, production
+
+exclude_paths:
+  - .cache*
+  - .git*
+  - data
+
+skip_list:
+  - fqcn[action] # ignore FQCN for module actions
+  - fqcn[action-core] # ignore FQCN from the ansible.legacy or ansible.builtin collection
+  - name[casing] # ignore tasks first capital letter naming
+  - role-name # ignore roles meta file
+
+mock_roles:
+  - packages
+  - ohmyzsh
+  - environment

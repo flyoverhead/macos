@@ -1,0 +1,30 @@
+---
+
+- name: homebrew | create root path
+  become: true
+  ansible.builtin.file:
+    path: '{{ packages_homebrew_root_path }}'
+    state: directory
+    owner: '{{ packages_homebrew_user }}'
+    group: '{{ packages_homebrew_group }}'
+    mode: '0755'
+
+- name: homebrew | create directory structure
+  become: true
+  ansible.builtin.file:
+    path: '{{ packages_homebrew_root_path }}/{{ item }}'
+    state: directory
+    owner: '{{ packages_homebrew_user }}'
+    group: '{{ packages_homebrew_group }}'
+    mode: '0755'
+  loop: '{{ packages_brew_folders }}'
+
+- name: homebrew | download
+  become: true
+  become_user: '{{ packages_homebrew_user }}'
+  ansible.builtin.git:
+    repo: '{{ packages_homebrew_repo }}'
+    version: '{{ packages_homebrew_version }}'
+    dest: '{{ packages_homebrew_root_path }}'
+    update: false
+    depth: 1

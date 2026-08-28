@@ -1,0 +1,11 @@
+---
+
+# Only meaningful on Apple Silicon; on Intel the installer refuses.
+- name: rosetta | install
+  become: true
+  ansible.builtin.command:
+    cmd: softwareupdate --install-rosetta --agree-to-license
+  args:
+    creates: /Library/Apple/usr/share/rosetta/rosetta
+  when:
+    - ansible_architecture == 'arm64'

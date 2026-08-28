@@ -1,0 +1,33 @@
+---
+
+dock_user_name: '{{ ansible_user }}'
+dock_user_group: '{{ ansible_user_group }}'
+dock_user_home: '{{ ansible_user_dir }}'
+
+dock_homebrew_bin_path: '{{ packages_homebrew_bin_path }}'
+
+dock_items_add:
+  - name: VSCodium
+    path: /Applications/VSCodium.app
+    position: 3
+  - name: iTerm
+    path: /Applications/iTerm.app
+    position: 4
+  - name: KeePassXC
+    path: /Applications/KeePassXC.app
+    position: 5
+
+dock_items_remove:
+  - App Store
+  - Calendar
+  - Contacts
+  - FaceTime
+  - Freeform
+  - Maps
+  - Music
+  - News
+  - Notes
+  - Photos
+  - Podcasts
+  - Reminders
+  - TV

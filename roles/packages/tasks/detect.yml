@@ -1,0 +1,15 @@
+---
+
+# The explicit `ansible.builtin.setup` that used to open this file is gone:
+# the play already gathers facts, and re-gathering them per role cost a round
+# trip for nothing.
+- name: detect | homebrew binary
+  ansible.builtin.stat:
+    path: '{{ packages_homebrew_bin_path }}/brew'
+  register: packages_homebrew_binary
+
+- name: detect | homebrew installed fact
+  ansible.builtin.set_fact:
+    packages_homebrew_installed: '{{ packages_homebrew_binary.stat.exists }}'
+    packages_homebrew_user: '{{ packages_user_name }}'
+    packages_homebrew_group: '{{ packages_user_group }}'

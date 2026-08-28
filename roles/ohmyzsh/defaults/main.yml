@@ -1,0 +1,74 @@
+---
+
+ohmyzsh_user_name: '{{ ansible_user }}'
+ohmyzsh_user_group: '{{ ansible_user_gid }}'
+ohmyzsh_user_home: '{{ ansible_user_dir }}'
+
+ohmyzsh_repo: https://github.com/ohmyzsh/ohmyzsh.git
+ohmyzsh_version: master
+
+ohmyzsh_shell: /bin/zsh
+
+ohmyzsh_dependencies:
+  - curl
+  - fzf
+  - git
+  - zsh
+
+# Homebrew formulae, sourced from `<brew prefix>/share/<name>/<source>` by
+# `.zshrc`. `source` differs per plugin, which is why this is a list of
+# mappings rather than plain names. It previously also carried `url` and
+# `branch` fields that nothing ever read -- the plugins have always come from
+# Homebrew, not from a git clone.
+ohmyzsh_install_plugins:
+  - name: zsh-autocomplete
+    source: zsh-autocomplete.plugin.zsh
+  - name: zsh-autosuggestions
+    source: zsh-autosuggestions.zsh
+  - name: zsh-history-substring-search
+    source: zsh-history-substring-search.zsh
+  - name: zsh-syntax-highlighting
+    source: zsh-syntax-highlighting.zsh
+
+ohmyzsh_theme: powerlevel10k/powerlevel10k
+ohmyzsh_theme_package: powerlevel10k
+
+# Written into the `plugins=(...)` line of `.zshrc`. These ship with Oh My Zsh;
+# anything in `ohmyzsh_install_plugins` is sourced separately.
+ohmyzsh_plugins:
+  - ansible
+  - brew
+  - git
+  - macos
+  - pip
+  - python
+  - ssh-agent
+  - terraform
+
+ohmyzsh_venv_path: '{{ ohmyzsh_user_home }}/.venv'
+ohmyzsh_homebrew_bin_path: /opt/homebrew/bin
+ohmyzsh_ssh_key_file: '{{ ohmyzsh_user_home }}/.ssh/id_ed25519'
+
+ohmyzsh_force_reinstall: false
+
+# Bind up/down arrow to history-substring-search. Only rendered when that
+# plugin is installed.
+ohmyzsh_history_substring_bindkeys: true
+
+# Emit `eval "$(task --completion zsh)"`, guarded by a command check so a
+# shell without go-task still starts.
+ohmyzsh_task_completion: true
+
+# Empty means the corresponding block is left out of `.zshrc` entirely.
+ohmyzsh_vault_addr: ''
+
+# Extra `export NAME=value` lines.
+ohmyzsh_exports: {}
+  # VAULT_ADDR: https://vault.example.com
+
+# Renders a `ci-run` helper that runs a CI image over the working directory.
+# Both must be set for the function to appear.
+ohmyzsh_ci_registry: ''
+ohmyzsh_ci_images: {}
+  # ansible: ansible-ci:10
+  # terraform: terraform-ci:1.9.6

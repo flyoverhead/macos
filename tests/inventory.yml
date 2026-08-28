@@ -1,0 +1,27 @@
+---
+
+# Two targets, one group layout. `localhost` configures the machine you are
+# sitting at; `remotehost` a Tart VM, addressed through ANSIBLE_HOST. Every
+# role group is a child of `workstation`, so one host runs the whole stack in
+# the order playbook.yml lists them.
+
+workstation:
+  hosts:
+    localhost:
+    remotehost:
+
+packages:
+  children:
+    workstation:
+
+ohmyzsh:
+  children:
+    workstation:
+
+dock:
+  children:
+    workstation:
+
+osx:
+  children:
+    workstation:

@@ -1,0 +1,15 @@
+---
+
+# `osx_defaults` takes its own type vocabulary, but `type_debug` reports Python
+# type names. Without this map the fallback for an entry that omits `type`
+# resolved to `str`, which `osx_defaults` rejects -- so every untyped string
+# entry failed. Anything unmapped falls through to `string`.
+osx_type_map:
+  AnsibleUnicode: string
+  AnsibleUnsafeText: string
+  bool: bool
+  float: float
+  int: int
+  list: array
+  str: string
+  unicode: string

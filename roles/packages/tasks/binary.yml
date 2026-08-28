@@ -1,0 +1,55 @@
+---
+
+- name: binary | check existing binary for {{ item.name }}
+  ansible.builtin.stat:
+    path: '{{ packages_binary_path }}/{{ item.name }}'
+  register: packages_existing_binary
+
+- name: binary | install {{ item.name }}
+  when:
+    - not packages_existing_binary.stat.exists
+  block:
+
+    # Was hardcoded to /tmp, ignoring `packages_tmp_path`.
+    - name: binary | create tmp path
+      ansible.builtin.file:
+        path: '{{ packages_tmp_path }}'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    - name: binary | download archive for {{ item.name }}
+      ansible.builtin.get_url:
+        url: '{{ item.url }}'
+        dest: '{{ packages_tmp_path }}/{{ item.url | basename }}'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0644'
+      register: packages_archive_download
+      until: packages_archive_download is succeeded
+      retries: 3
+      delay: 5
+
+    # `mode` is deliberately absent: it applied to the extraction directory,
+    # where 0644 stripped the execute bit needed to traverse it.
+    - name: binary | extract archive for {{ item.name }}
+      ansible.builtin.unarchive:
+        src: '{{ packages_tmp_path }}/{{ item.url | basename }}'
+        dest: '{{ packages_tmp_path }}'
+        remote_src: true
+
+    - name: binary | install to the binary path {{ item.name }}
+      become: true
+      ansible.builtin.copy:
+        src: '{{ packages_tmp_path }}/{{ item.name }}'
+        dest: '{{ packages_binary_path }}/{{ item.name }}'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+        remote_src: true
+
+    - name: binary | clean tmp path
+      ansible.builtin.file:
+        path: '{{ packages_tmp_path }}/{{ item.url | basename }}'
+        state: absent

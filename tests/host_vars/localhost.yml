@@ -1,0 +1,7 @@
+---
+
+ansible_connection: local
+ansible_user: '{{ lookup("env", "USER") }}'
+
+venv_path: '{{ lookup("env", "HOME") }}/.venv'
+tmp_path: '{{ lookup("env", "HOME") }}/tmp'

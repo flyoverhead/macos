@@ -1,0 +1,19 @@
+# Anchored to the repository root on purpose. The `packages` role ships these
+# same filenames as payload under roles/packages/files/, and an unanchored
+# pattern would silently untrack them.
+/.ansible-lint
+/.pre-commit-config.yaml
+/.tflint.hcl
+/.yamllint
+
+*.pub
+*.pyc
+*.tar.gz
+__pycache__/
+.DS_Store
+.ansible
+.claude
+.vagrant
+.venv
+.vscode
+vault_pass

@@ -1,0 +1,15 @@
+---
+
+osx_defaults: []
+  # - domain: com.apple.dock
+  #   key: tilesize
+  #   type: float
+  #   value: 50
+  #   state: present
+
+# Processes restarted once, after any default changed, so the new values take
+# effect without a logout.
+osx_reload_services:
+  - Dock
+  - Finder
+  - SystemUIServer

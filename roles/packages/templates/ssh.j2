@@ -1,0 +1,13 @@
+{% for entry in packages_ssh_hosts %}
+Host {{ entry.host }}
+{% for name, value in (entry.options | default({})).items() %}
+{% if value is not string and value is iterable %}
+{% for single in value %}
+  {{ name }} {{ single }}
+{% endfor %}
+{% else %}
+  {{ name }} {{ value }}
+{% endif %}
+{% endfor %}
+{{ '' }}
+{% endfor %}

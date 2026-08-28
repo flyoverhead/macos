@@ -1,0 +1,15 @@
+---
+
+- name: dock | clear homebrew cache
+  ansible.builtin.file:
+    path: '{{ dock_homebrew_cache_path.stdout | trim }}'
+    state: absent
+  when:
+    - dock_brew_clear_cache
+    - dock_homebrew_cache_path.stdout | default('') | length > 0
+
+# Every dockutil write restarts the Dock. Waiting lets it settle before the
+# next item is touched, otherwise a rapid sequence of changes is lost.
+- name: dock | apply changes
+  ansible.builtin.wait_for:
+    timeout: '{{ dock_apply_timeout }}'

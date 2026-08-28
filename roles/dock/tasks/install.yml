@@ -1,0 +1,22 @@
+---
+
+- name: install | dockutil
+  community.general.homebrew:
+    name: dockutil
+    path: '{{ dock_homebrew_bin_path }}'
+    state: present
+  notify:
+    - dock | clear homebrew cache
+
+# Registered only when the cache is going to be cleared, and read by the
+# handler. This role used to read `homebrew_cache_path` and
+# `packages_brew_clear_cache` from the `packages` role, which meant `dock`
+# could not run on its own.
+- name: install | get homebrew cache path
+  ansible.builtin.command:
+    cmd: '{{ dock_homebrew_bin_path }}/brew --cache'
+  register: dock_homebrew_cache_path
+  changed_when: false
+  check_mode: false
+  when:
+    - dock_brew_clear_cache

@@ -1,0 +1,36 @@
+---
+
+# Runs against `localhost` by default. Set ANSIBLE_HOST to point at a Tart VM
+# and `remotehost` is targeted instead -- `task vm-deploy` does this for you.
+
+- name: configure workstation
+  hosts: >-
+    {{ 'remotehost'
+    if lookup('env', 'ANSIBLE_HOST') | length > 0
+    else 'localhost' }}
+  gather_facts: true
+
+  roles:
+
+    # must run first: it installs Homebrew, which every later role needs, and
+    # the casks that `dock` places and `ohmyzsh` themes
+    - role: packages
+      when: '"packages" in group_names'
+      tags:
+        - packages
+
+    - role: ohmyzsh
+      when: '"ohmyzsh" in group_names'
+      tags:
+        - ohmyzsh
+
+    # needs dockutil, and the applications it places, from `packages`
+    - role: dock
+      when: '"dock" in group_names'
+      tags:
+        - dock
+
+    - role: osx
+      when: '"osx" in group_names'
+      tags:
+        - osx

@@ -1,0 +1,59 @@
+---
+
+- name: install | dependencies
+  become: true
+  become_user: '{{ ohmyzsh_user_name }}'
+  community.general.homebrew:
+    name: '{{ ohmyzsh_dependencies }}'
+    path: '{{ ohmyzsh_homebrew_bin_path }}'
+    state: present
+  when:
+    - ohmyzsh_dependencies | length > 0
+
+# `ohmyzsh_force_reinstall` was read by `main.yml` but nothing ever acted on
+# it, so a forced run reinstalled nothing.
+- name: install | remove existing oh-my-zsh
+  become: true
+  ansible.builtin.file:
+    path: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+    state: absent
+  when:
+    - ohmyzsh_force_reinstall
+    - ohmyzsh_installed
+
+# `update: false` leaves an existing checkout alone. The previous version let
+# the update run and then pattern-matched 'Local modifications exist in the
+# destination' out of the failure message to decide it had not really failed.
+- name: install | oh-my-zsh
+  become: true
+  become_user: '{{ ohmyzsh_user_name }}'
+  ansible.builtin.git:
+    repo: '{{ ohmyzsh_repo }}'
+    dest: '{{ ohmyzsh_user_home }}/.oh-my-zsh'
+    version: '{{ ohmyzsh_version }}'
+    depth: 1
+    update: false
+
+- name: install | plugins
+  become: true
+  become_user: '{{ ohmyzsh_user_name }}'
+  community.general.homebrew:
+    name: '{{ ohmyzsh_install_plugins | map(attribute="name") | list }}'
+    path: '{{ ohmyzsh_homebrew_bin_path }}'
+    state: present
+  when:
+    - ohmyzsh_install_plugins | length > 0
+
+- name: install | powerlevel10k theme
+  become: true
+  become_user: '{{ ohmyzsh_user_name }}'
+  community.general.homebrew:
+    name: '{{ ohmyzsh_theme_package }}'
+    path: '{{ ohmyzsh_homebrew_bin_path }}'
+    state: present
+
+- name: install | set default shell
+  become: true
+  ansible.builtin.user:
+    name: '{{ ohmyzsh_user_name }}'
+    shell: '{{ ohmyzsh_shell }}'

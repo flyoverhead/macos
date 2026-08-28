@@ -1,0 +1,13 @@
+---
+
+# `packages_homebrew_cache_path` is only registered when
+# `packages_brew_clear_cache` is set, and `brew.yml` is skipped altogether when
+# no brew packages are requested -- so the path can legitimately be undefined
+# here. It used to be dereferenced unconditionally.
+- name: packages | clear homebrew cache
+  ansible.builtin.file:
+    path: '{{ packages_homebrew_cache_path.stdout | trim }}'
+    state: absent
+  when:
+    - packages_brew_clear_cache
+    - packages_homebrew_cache_path.stdout | default('') | length > 0

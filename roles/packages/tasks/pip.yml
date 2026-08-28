@@ -1,0 +1,11 @@
+---
+
+- name: pip | install packages
+  become: true
+  become_user: '{{ packages_user_name }}'
+  ansible.builtin.pip:
+    name: '{{ packages_pip }}'
+    state: present
+    virtualenv: '{{ packages_venv_path }}'
+    virtualenv_command: '{{ packages_homebrew_bin_path }}/python3 -m venv'
+    extra_args: --upgrade

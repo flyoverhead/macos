@@ -1,0 +1,13 @@
+---
+
+# `killall` exits 1 when the named process is not running, which is not a
+# failure here: the point is only that a running instance rereads its
+# preferences. Previously `changed_when: true` with no `failed_when` meant a
+# machine without, say, SystemUIServer running aborted the play.
+- name: osx | reload services
+  ansible.builtin.command:
+    cmd: killall {{ item }}
+  register: osx_killall
+  changed_when: osx_killall.rc == 0
+  failed_when: osx_killall.rc not in [0, 1]
+  loop: '{{ osx_reload_services }}'

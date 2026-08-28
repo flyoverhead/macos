@@ -1,0 +1,59 @@
+---
+
+- name: brew | update
+  ansible.builtin.command:
+    cmd: '{{ packages_homebrew_bin_path }}/brew update --force'
+  changed_when: true
+  when:
+    - not packages_homebrew_installed
+
+# Read only, and the handler that clears the cache depends on it, so it has to
+# run in a check run too. Registered only when the cache will be cleared.
+- name: brew | get cache path
+  ansible.builtin.command:
+    cmd: '{{ packages_homebrew_bin_path }}/brew --cache'
+  register: packages_homebrew_cache_path
+  changed_when: false
+  check_mode: false
+  when:
+    - packages_brew_clear_cache
+
+- name: brew | taps
+  community.general.homebrew_tap:
+    name: '{{ item.name | default(item) }}'
+    path: '{{ item.path | default(packages_homebrew_bin_path) }}'
+    state: '{{ item.state | default("present") }}'
+    url: '{{ item.url | default(omit) }}'
+  loop: '{{ packages_brew_taps }}'
+
+- name: brew | casks
+  community.general.homebrew_cask:
+    accept_external_apps: '{{ item.accept_external_apps | default(false) }}'
+    greedy: '{{ item.greedy | default(false) }}'
+    install_options: '{{ item.install_options | default("appdir=" + packages_brew_cask_apps_path) }}'
+    name: '{{ item.name | default(item) }}'
+    path: '{{ item.path | default(packages_homebrew_bin_path) }}'
+    state: '{{ item.state | default("present") }}'
+  loop: '{{ packages_brew_casks }}'
+  notify:
+    - packages | clear homebrew cache
+
+- name: brew | packages
+  community.general.homebrew:
+    install_options: '{{ item.install_options | default(omit) }}'
+    name: '{{ item.name | default(item) }}'
+    path: '{{ item.path | default(packages_homebrew_bin_path) }}'
+    state: '{{ item.state | default("present") }}'
+  loop: '{{ packages_brew }}'
+  notify:
+    - packages | clear homebrew cache
+
+- name: brew | upgrade
+  community.general.homebrew:
+    path: '{{ packages_homebrew_bin_path }}'
+    update_homebrew: true
+    upgrade_all: true
+  when:
+    - packages_brew_upgrade
+  notify:
+    - packages | clear homebrew cache

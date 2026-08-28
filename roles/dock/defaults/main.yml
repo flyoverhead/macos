@@ -1,0 +1,23 @@
+---
+
+dock_items_add: []
+  # - name: Safari
+  #   path: /Applications/Safari.app
+  #   position: 4
+
+dock_items_remove: []
+  # - Podcasts
+  # - TV
+
+dock_user_name: '{{ ansible_user }}'
+dock_user_group: '{{ ansible_user_gid }}'
+dock_user_home: '{{ ansible_user_dir }}'
+
+dock_homebrew_bin_path: /opt/homebrew/bin
+
+# Delete the Homebrew download cache after installing dockutil.
+dock_brew_clear_cache: false
+
+# Seconds to wait after a dockutil change before the next one, so the Dock has
+# settled. Every dockutil write restarts the Dock.
+dock_apply_timeout: 15

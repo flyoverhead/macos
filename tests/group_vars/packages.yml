@@ -1,0 +1,83 @@
+---
+
+packages_user_name: '{{ ansible_user }}'
+packages_user_group: '{{ ansible_user_group }}'
+packages_user_home: '{{ ansible_user_dir }}'
+
+packages_pre_commit_path: '{{ pre_commit_path }}'
+packages_pre_commit_hooks_path: '{{ pre_commit_hooks_path }}'
+packages_tmp_path: '{{ tmp_path }}'
+packages_venv_path: '{{ venv_path }}'
+
+packages_homebrew_root_path: /opt/homebrew
+packages_homebrew_bin_path: '{{ packages_homebrew_root_path }}/bin'
+
+packages_brew:
+  - bash-completion
+  - ca-certificates
+  - curl
+  - git
+  - go-task
+  - gpg
+  - helm
+  - k9s
+  - kubectl
+  - nano
+  - openssl
+  - python3
+  - tflint
+  - wget
+  - zip
+
+packages_brew_taps: []
+
+packages_brew_casks:
+  - appcleaner
+  - font-meslo-for-powerlevel10k
+  - iterm2
+  - keepassxc
+  - localsend
+  - vscodium
+
+packages_pip:
+  - ansible-lint
+  - pip
+  - pre-commit
+  - yamllint
+
+packages_rosetta_install: true
+
+packages_git_config:
+  - name: user.name
+    value: '{{ ansible_user }}'
+  - name: init.templateDir
+    value: '{{ pre_commit_path }}'
+  - name: core.hooksPath
+    value: '{{ pre_commit_hooks_path }}'
+
+packages_vscode_extensions:
+  - hashicorp.terraform
+  - redhat.ansible
+  - redhat.vscode-yaml
+  - wholroyd.jinja
+
+# Shape demonstration. An option whose value is a list is emitted once per
+# entry, which is what IdentityFile needs.
+packages_ssh_hosts:
+
+  - host: '*'
+    options:
+      AddKeysToAgent: 'yes'
+      UseKeychain: 'yes'
+      IdentityFile:
+        - ~/.ssh/id_ed25519
+
+  - host: 192.0.2.10
+    options:
+      User: example
+      Port: 22
+      IdentityFile: ~/.ssh/id_ed25519
+
+# Registry credentials would go here, from a vault the consuming inventory
+# owns. Left empty so the test run writes no ~/.docker/config.json.
+packages_docker_config: {}

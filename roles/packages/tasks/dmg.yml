@@ -1,0 +1,90 @@
+---
+
+- name: dmg | check application {{ item.name }}
+  ansible.builtin.stat:
+    path: '{{ packages_brew_cask_apps_path }}/{{ item.app_name | default(item.name | capitalize) }}.app'
+  register: packages_dmg_app
+
+- name: dmg | install {{ item.name }}
+  when:
+    - not packages_dmg_app.stat.exists
+  block:
+
+    - name: dmg | create tmp path
+      ansible.builtin.file:
+        path: '{{ packages_tmp_path }}'
+        state: directory
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0755'
+
+    - name: dmg | download {{ item.name }}
+      ansible.builtin.get_url:
+        url: '{{ item.url }}'
+        dest: '{{ packages_tmp_path }}/{{ item.name }}.dmg'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0644'
+      register: packages_dmg_download
+      until: packages_dmg_download is succeeded
+      retries: 3
+      delay: 5
+
+    # Attach, copy, detach. Wrapped so the image is always detached even when
+    # the copy fails -- a leaked mountpoint blocks the next run.
+    - name: dmg | attach and install {{ item.name }}
+      block:
+
+        - name: dmg | attach {{ item.name }}
+          ansible.builtin.command:
+            cmd: >-
+              hdiutil attach {{ packages_tmp_path }}/{{ item.name }}.dmg
+              -nobrowse -mountpoint {{ packages_tmp_path }}/{{ item.name }}
+          changed_when: true
+
+        - name: dmg | find bundle for {{ item.name }}
+          ansible.builtin.find:
+            depth: 1
+            file_type: directory
+            paths: '{{ packages_tmp_path }}/{{ item.name }}'
+            patterns: '*.app'
+          register: packages_dmg_bundle
+
+        - name: dmg | fail when no bundle found for {{ item.name }}
+          ansible.builtin.fail:
+            msg: >-
+              No .app bundle found at the top level of {{ item.name }}.dmg.
+              The image may use an installer package instead.
+          when:
+            - packages_dmg_bundle.files | length == 0
+
+        - name: dmg | copy bundle to the applications path for {{ item.name }}
+          become: true
+          ansible.builtin.copy:
+            src: '{{ packages_dmg_bundle.files | map(attribute="path") | first }}/'
+            dest: '{{ packages_brew_cask_apps_path }}/{{ item.app_name | default(item.name | capitalize) }}.app'
+            owner: '{{ packages_user_name }}'
+            group: '{{ packages_user_group }}'
+            mode: preserve
+            remote_src: true
+
+      always:
+
+        - name: dmg | detach {{ item.name }}
+          ansible.builtin.command:
+            cmd: hdiutil detach {{ packages_tmp_path }}/{{ item.name }}
+          changed_when: true
+          failed_when: false
+
+    # Only this image's artefacts are removed. The whole of
+    # `packages_tmp_path` used to be deleted, which is shared with the binary
+    # installer and with anything else the operator keeps there.
+    - name: dmg | clean up {{ item.name }}
+      ansible.builtin.file:
+        path: '{{ cleanup_path }}'
+        state: absent
+      loop:
+        - '{{ packages_tmp_path }}/{{ item.name }}.dmg'
+        - '{{ packages_tmp_path }}/{{ item.name }}'
+      loop_control:
+        loop_var: cleanup_path

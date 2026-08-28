@@ -1,0 +1,73 @@
+---
+
+version: '3'
+
+silent: true
+
+vars:
+  VM_NAME: tahoe
+  VM_IMAGE: ghcr.io/cirruslabs/macos-tahoe-base:latest
+  VM_DISK_SIZE: 60
+
+tasks:
+
+  install:
+    desc: Install the collection and python dependencies
+    cmds:
+      - ansible-galaxy collection install -r requirements.yml
+      - pip install -r requirements.txt
+
+  lint:
+    desc: Run ansible-lint and yamllint over the collection
+    cmds:
+      - ansible-lint
+      - yamllint .
+
+  build:
+    desc: Build the collection tarball
+    cmds:
+      - ansible-galaxy collection build --force
+
+  check:
+    desc: Syntax check and a check-mode run against localhost
+    dir: tests
+    cmds:
+      - ansible-playbook -i inventory.yml playbook.yml --syntax-check
+      - ansible-playbook -i inventory.yml playbook.yml --check --diff
+
+  play:
+    desc: Configure this machine
+    dir: tests
+    cmds:
+      - ansible-playbook -i inventory.yml playbook.yml
+
+  vm-deploy:
+    desc: Clone a macOS VM, boot it and configure it
+    cmds:
+      - tart clone {{.VM_IMAGE}} {{.VM_NAME}}
+      - tart set {{.VM_NAME}} --disk-size {{.VM_DISK_SIZE}}
+      - tart run {{.VM_NAME}} &
+      - sleep 30
+      - task: vm-play
+
+  vm-provision:
+    desc: Re-run the playbook against a running VM
+    cmds:
+      - task: vm-play
+
+  vm-play:
+    internal: true
+    dir: tests
+    cmds:
+      - ansible-playbook -i inventory.yml playbook.yml
+    env:
+      ANSIBLE_HOST:
+        sh: tart ip {{.VM_NAME}}
+      ANSIBLE_USER: admin
+      ANSIBLE_PASSWORD: admin
+
+  vm-destroy:
+    desc: Stop and delete the VM
+    cmds:
+      - tart stop {{.VM_NAME}} || true
+      - tart delete {{.VM_NAME}} || true

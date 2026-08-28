@@ -1,0 +1,99 @@
+---
+
+# `dockutil --find` exits non-zero when the item is simply not in the dock,
+# which is an answer rather than a failure -- hence `failed_when: false` in
+# place of the previous `failed_when` that tested `.msg`, an attribute a
+# successful `command` never sets. It only reads, so `check_mode: false` keeps
+# the branches below supplied in a check run.
+- name: config | find dock item {{ item.name }}
+  ansible.builtin.command:
+    cmd: dockutil --find '{{ item.name }}'
+  register: dock_item_found
+  changed_when: false
+  check_mode: false
+  failed_when: false
+
+- name: config | remove dock item
+  when:
+    - item.state == 'absent'
+    - dock_item_found.rc == 0
+  block:
+
+    - name: config | remove dock item {{ item.name }}
+      ansible.builtin.command:
+        cmd: dockutil --remove '{{ item.name }}'
+      changed_when: true
+      notify:
+        - dock | apply changes
+
+    - name: config | flush after remove
+      ansible.builtin.meta: flush_handlers
+
+- name: config | add dock item
+  when:
+    - item.state == 'present'
+  block:
+
+    # An application parked in `recent-apps` is not a persistent dock entry,
+    # so it still needs adding. The section is only present in the output when
+    # the item was found at all, so the expression yields '' otherwise --
+    # previously this was a conditional `set_fact` whose variable the next
+    # task read unconditionally, aborting the play on a missing item.
+    - name: config | get dock item section
+      ansible.builtin.set_fact:
+        dock_item_section: >-
+          {{ dock_item_found.stdout
+          | regex_search('found in ([a-z-]+)', '\1')
+          | default([''], true) | first }}
+
+    - name: config | add dock item {{ item.name }}
+      ansible.builtin.command:
+        cmd: dockutil --add '{{ item.path }}' --label '{{ item.name }}'
+      when: >-
+        dock_item_found.rc != 0
+        or dock_item_section == 'recent-apps'
+      changed_when: true
+      notify:
+        - dock | apply changes
+
+    - name: config | flush after add
+      ansible.builtin.meta: flush_handlers
+
+- name: config | order dock item
+  when:
+    - item.state == 'present'
+    - item.position | int > 0
+  block:
+
+    # Re-read rather than reuse the earlier result: after an add the slot
+    # number in it is stale, and for a newly added item there was no slot.
+    - name: config | re-find dock item {{ item.name }}
+      ansible.builtin.command:
+        cmd: dockutil --find '{{ item.name }}'
+      register: dock_item_placed
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    # The slot number was previously regexed out of the registered dict rather
+    # than its `stdout`, so the comparison below never matched and `--move`
+    # ran on every play.
+    - name: config | get dock item slot
+      ansible.builtin.set_fact:
+        dock_item_slot: >-
+          {{ dock_item_placed.stdout
+          | regex_search('slot\s+([0-9]+)', '\1')
+          | default(['0'], true) | first | int }}
+
+    - name: config | order dock item {{ item.name }}
+      ansible.builtin.command:
+        cmd: dockutil --move '{{ item.name }}' --position '{{ item.position }}'
+      when:
+        - dock_item_placed.rc == 0
+        - dock_item_slot | int != item.position | int
+      changed_when: true
+      notify:
+        - dock | apply changes
+
+    - name: config | flush after order
+      ansible.builtin.meta: flush_handlers

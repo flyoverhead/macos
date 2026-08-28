@@ -1,0 +1,112 @@
+---
+
+packages_user_name: '{{ ansible_user }}'
+packages_user_group: '{{ ansible_user_gid }}'
+packages_user_home: '{{ ansible_user_dir }}'
+
+packages_tmp_path: '{{ packages_user_home }}/tmp'
+packages_venv_path: '{{ packages_user_home }}/.venv'
+
+packages_homebrew_repo: https://github.com/Homebrew/brew
+packages_homebrew_version: master
+
+packages_homebrew_root_path: /opt/homebrew
+packages_homebrew_bin_path: '{{ packages_homebrew_root_path }}/bin'
+
+packages_brew: []
+  # - bash-completion
+  # - git
+  # - python3
+
+packages_brew_upgrade: false
+
+packages_brew_taps: []
+  # - cirruslabs/cli
+
+packages_brew_casks: []
+  # - iterm2
+  # - vscodium
+
+packages_brew_cask_apps_path: /Applications
+
+packages_brew_clear_cache: false
+
+packages_brew_folders:
+  - Caskroom
+  - Cellar
+  - Frameworks
+  - bin
+  - etc
+  - include
+  - lib
+  - opt
+  - sbin
+  - share
+  - share/zsh
+  - share/zsh/site-functions
+  - var
+
+packages_binary: []
+  # - name: terraform
+  #   url: https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_darwin_arm64.zip
+
+packages_binary_path: /usr/local/bin
+
+packages_dmg: []
+  # - name: example
+  #   url: https://example.com/example.dmg
+
+packages_pip: []
+  # - pip
+
+packages_rosetta_install: false
+
+packages_docker_config: {}
+  # auths:
+  #   registry.example.com:
+  #     auth: ''
+  # dns:
+  #   - 1.1.1.1
+
+packages_vscode_extensions: []
+  # - redhat.ansible
+  # - hashicorp.terraform
+
+# Global git options, applied with `git config --global`. Values are not
+# logged, because a signing key is commonly set here.
+packages_git_config: []
+  # - name: user.name
+  #   value: example
+  # - name: user.email
+  #   value: example@example.com
+
+# Where the pre-commit hook script and the linter configs it distributes are
+# installed. Previously this had no default at all and only worked because the
+# consuming inventory happened to set it.
+packages_pre_commit_path: '{{ packages_user_home }}/.pre-commit'
+packages_pre_commit_hooks_path: '{{ packages_pre_commit_path }}/hooks'
+packages_pre_commit_install: true
+
+# Configs the deployed `pre-commit` wrapper drops into a repository that does
+# not already carry them. `gitignore` is handled separately: it ships without
+# the leading dot and is renamed on copy.
+packages_pre_commit_configs:
+  - .ansible-lint
+  - .pre-commit-config.yaml
+  - .tflint.hcl
+  - .yamllint
+
+# `~/.ssh/config` stanzas. Rendered in order; an option whose value is a list
+# is emitted once per entry, which is what `IdentityFile` needs. Empty means
+# `~/.ssh/config` is left alone.
+packages_ssh_hosts: []
+  # - host: '*'
+  #   options:
+  #     AddKeysToAgent: 'yes'
+  #     UseKeychain: 'yes'
+  #     IdentityFile:
+  #       - ~/.ssh/id_ed25519
+  # - host: 192.0.2.10
+  #   options:
+  #     User: example
+  #     Port: 22

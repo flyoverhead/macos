@@ -1,0 +1,51 @@
+---
+
+osx_defaults:
+
+  # dock
+  - domain: com.apple.dock
+    key: tilesize
+    type: float
+    value: 50
+  - domain: com.apple.dock
+    key: magnification
+    type: bool
+    value: true
+  - domain: com.apple.dock
+    key: largesize
+    type: float
+    value: 70
+  - domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: false
+
+  # finder
+  - domain: com.apple.finder
+    key: ShowPathbar
+    type: bool
+    value: true
+  - domain: com.apple.finder
+    key: FXPreferredViewStyle
+    type: string
+    value: Nlsv
+  - domain: com.apple.finder
+    key: _FXSortFoldersFirst
+    type: bool
+    value: true
+
+  # trackpad
+  - domain: com.apple.AppleMultitouchTrackpad
+    key: Clicking
+    type: int
+    value: 1
+
+  # global -- `type` omitted on purpose, to exercise the type_debug fallback
+  - domain: NSGlobalDomain
+    key: NSAutomaticCapitalizationEnabled
+    value: false
+  - domain: NSGlobalDomain
+    key: AppleLanguages
+    type: array
+    value:
+      - en-US
