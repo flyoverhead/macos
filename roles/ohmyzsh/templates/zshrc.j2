@@ -46,7 +46,7 @@ zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
 # Homebrew share directory, where the theme and the extra plugins live.
 share_path="{{ ohmyzsh_homebrew_share_path }}"
 
-# Completions. compinit itself is run by oh-my-zsh.sh, below.
+# Completions.
 {% if 'zsh-autocomplete' in (ohmyzsh_install_plugins | map(attribute='name') | list) %}
 fpath=(${share_path}/zsh-autocomplete/Completions $fpath)
 {% endif %}

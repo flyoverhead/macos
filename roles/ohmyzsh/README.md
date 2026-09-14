@@ -81,13 +81,11 @@ by default `.zshrc` contains neither.
   `ohmyzsh_homebrew_share_path`. Each `source` line is guarded by a file test,
   so a plugin whose formula lays its files out differently is skipped silently
   rather than breaking the shell.
-- **Completion directories must be on `$fpath` before `compinit`, which
-  `oh-my-zsh.sh` runs itself.** Oh My Zsh runs `compinit` before it sources
-  plugins, so a directory added afterwards is never registered and its functions
-  fail with `command not found` at completion time. That is why
-  `zsh-autocomplete`'s `Completions/` is put on `$fpath` up front rather than
-  left to the plugin, and why tool-managed directories belong in
-  `ohmyzsh_extra_fpath` rather than appended to `.zshrc` by hand.
+- **Completion directories must be on `$fpath` before `compinit`.** Oh My Zsh
+  runs `compinit` itself, before sourcing plugins, so anything added afterwards
+  is never registered and fails with `command not found` at completion time.
+  Hence `zsh-autocomplete`'s `Completions/` up front, and `ohmyzsh_extra_fpath`
+  for other tools' directories.
 - **`ohmyzsh_force_reinstall` deletes `~/.oh-my-zsh`.** Any custom plugins or
   themes you dropped in there by hand go with it.
 - **No tags.** The role runs as a whole.

@@ -51,9 +51,7 @@ ohmyzsh_ssh_key_file: '{{ ohmyzsh_user_home }}/.ssh/id_ed25519'
 
 ohmyzsh_force_reinstall: false
 
-# Extra directories prepended to `$fpath` before Oh My Zsh runs `compinit`, for
-# completions shipped outside Homebrew. Anything added after `compinit` is never
-# registered, so tool-managed dirs belong here.
+# Prepended to `$fpath` before `compinit`, for completions from other tools.
 ohmyzsh_extra_fpath: []
   # - $HOME/.docker/completions
 
