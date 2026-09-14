@@ -2,6 +2,38 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 1.1.0
+
+### Added
+
+- **`ohmyzsh_extra_fpath`** — directories prepended to `$fpath` before
+  `compinit`, for completions owned by other tools (Docker Desktop, OpenSpec).
+  Anything appended to `.zshrc` after `compinit` is never registered.
+- **`ohmyzsh_ssh_add_args`** — `ssh-add-args` for the ssh-agent plugin, so a key
+  can be loaded into the keychain. `ohmyzsh_ssh_key_file` already accepted a
+  directory, which loads every key in it.
+- **`ohmyzsh_kubectl_completion`** — kubectl completions, mirroring
+  `ohmyzsh_task_completion` including the `command -v` guard.
+- `b64e`/`b64d` helpers, and a guarded `. "$HOME/.local/bin/env"` for tool
+  installers that write one.
+
+### Fixed
+
+- **`zsh-autocomplete` completions are registered again.** Its functions live in
+  a `Completions/` directory that only joins `$fpath` when the plugin is
+  sourced, which happens after Oh My Zsh has run `compinit` — so they were never
+  registered and completion could raise
+  `command not found: _autocomplete__unambiguous`.
+
+### Changed
+
+- **`ci-run` gained what the hand-maintained copy had:** a Vault re-login when
+  the token has expired, `--network host`, `GL_USER_TOKEN`, `TF_STATE_NAME`, the
+  ansible ssh key mount and `--init-file .env`.
+- **Dropped `autoload -Uz compinit && compinit` from `.zshrc`.** It ran against
+  the default `~/.zcompdump` while Oh My Zsh immediately ran `compinit` again
+  against its own, leaving a stray dump file and no benefit.
+
 ## 1.0.0
 
 Initial release. The four macOS workstation roles were extracted from a
