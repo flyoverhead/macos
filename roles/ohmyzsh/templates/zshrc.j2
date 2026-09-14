@@ -92,8 +92,6 @@ fi
 
 # Source fzf.
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Source the local bin environment, if a tool installer wrote one.
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 {% if ohmyzsh_task_completion %}
 
@@ -102,7 +100,6 @@ command -v task >/dev/null 2>&1 && eval "$(task --completion zsh)"
 {% endif %}
 {% if ohmyzsh_kubectl_completion %}
 
-# kubectl completions, if kubectl is installed.
 command -v kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
 {% endif %}
 
@@ -116,7 +113,6 @@ knownrm() {
   fi
 }
 
-# Base64 encode/decode helpers.
 function b64e() {
   echo -n "${1}" | base64
 }
