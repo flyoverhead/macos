@@ -25,9 +25,11 @@ as `ssh-add --apple-load-keychain`.
 | `ohmyzsh_theme_package` | Formula providing the theme, and the directory it is sourced from | `powerlevel10k` |
 | `ohmyzsh_venv_path` | Virtualenv prepended to `$PATH` | `/Users/me/.venv` |
 | `ohmyzsh_homebrew_bin_path` | Homebrew `bin` directory | `/opt/homebrew/bin` |
-| `ohmyzsh_ssh_key_file` | Identity given to the `ssh-agent` plugin | `/Users/me/.ssh/id_ed25519` |
+| `ohmyzsh_ssh_key_file` | Identity given to the `ssh-agent` plugin; a directory loads every key in it | `/Users/me/.ssh/id_ed25519` |
+| `ohmyzsh_ssh_add_args` | `ssh-add-args` for that plugin; a key path here is loaded into the keychain | `--apple-load-keychain` |
 | `ohmyzsh_force_reinstall` | Delete `~/.oh-my-zsh` and install again | `false` |
 | `ohmyzsh_task_completion` | Emit go-task completions, guarded by a `command -v` check | `true` |
+| `ohmyzsh_kubectl_completion` | Emit kubectl completions, same guard | `true` |
 | `ohmyzsh_history_substring_bindkeys` | Bind up/down to history-substring-search | `true` |
 | `ohmyzsh_extra_fpath` | Directories prepended to `$fpath` before `compinit` | `[]` |
 | `ohmyzsh_vault_addr` | `VAULT_ADDR`, and the `vault-login` helper. Empty omits both | `''` |
