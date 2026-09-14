@@ -25,10 +25,13 @@ as `ssh-add --apple-load-keychain`.
 | `ohmyzsh_theme_package` | Formula providing the theme, and the directory it is sourced from | `powerlevel10k` |
 | `ohmyzsh_venv_path` | Virtualenv prepended to `$PATH` | `/Users/me/.venv` |
 | `ohmyzsh_homebrew_bin_path` | Homebrew `bin` directory | `/opt/homebrew/bin` |
-| `ohmyzsh_ssh_key_file` | Identity given to the `ssh-agent` plugin | `/Users/me/.ssh/id_ed25519` |
+| `ohmyzsh_ssh_key_file` | Identity given to the `ssh-agent` plugin; a directory loads every key in it | `/Users/me/.ssh/id_ed25519` |
+| `ohmyzsh_ssh_add_args` | `ssh-add-args` for that plugin; a key path here is loaded into the keychain | `--apple-load-keychain` |
 | `ohmyzsh_force_reinstall` | Delete `~/.oh-my-zsh` and install again | `false` |
 | `ohmyzsh_task_completion` | Emit go-task completions, guarded by a `command -v` check | `true` |
+| `ohmyzsh_kubectl_completion` | Emit kubectl completions, same guard | `true` |
 | `ohmyzsh_history_substring_bindkeys` | Bind up/down to history-substring-search | `true` |
+| `ohmyzsh_extra_fpath` | Directories prepended to `$fpath` before `compinit` | `[]` |
 | `ohmyzsh_vault_addr` | `VAULT_ADDR`, and the `vault-login` helper. Empty omits both | `''` |
 | `ohmyzsh_exports` | Extra `export NAME=value` lines | `{EDITOR: nano}` |
 | `ohmyzsh_ci_registry` | Registry for the `ci-run` helper | `''` |
@@ -80,6 +83,11 @@ by default `.zshrc` contains neither.
   `ohmyzsh_homebrew_share_path`. Each `source` line is guarded by a file test,
   so a plugin whose formula lays its files out differently is skipped silently
   rather than breaking the shell.
+- **Completion directories must be on `$fpath` before `compinit`.** Oh My Zsh
+  runs `compinit` itself, before sourcing plugins, so anything added afterwards
+  is never registered and fails with `command not found` at completion time.
+  Hence `zsh-autocomplete`'s `Completions/` up front, and `ohmyzsh_extra_fpath`
+  for other tools' directories.
 - **`ohmyzsh_force_reinstall` deletes `~/.oh-my-zsh`.** Any custom plugins or
   themes you dropped in there by hand go with it.
 - **No tags.** The role runs as a whole.

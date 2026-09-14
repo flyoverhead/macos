@@ -41,10 +41,18 @@ unsetopt nomatch
 zstyle :omz:plugins:ssh-agent quiet yes
 zstyle :omz:plugins:ssh-agent agent-forwarding yes
 zstyle :omz:plugins:ssh-agent identities {{ ohmyzsh_ssh_key_file }}
-zstyle :omz:plugins:ssh-agent ssh-add-args --apple-load-keychain
+zstyle :omz:plugins:ssh-agent ssh-add-args {{ ohmyzsh_ssh_add_args }}
+
+# Homebrew share directory, where the theme and the extra plugins live.
+share_path="{{ ohmyzsh_homebrew_share_path }}"
 
 # Completions.
-autoload -Uz compinit && compinit
+{% if 'zsh-autocomplete' in (ohmyzsh_install_plugins | map(attribute='name') | list) %}
+fpath=(${share_path}/zsh-autocomplete/Completions $fpath)
+{% endif %}
+{% for path in ohmyzsh_extra_fpath %}
+fpath=({{ path }} $fpath)
+{% endfor %}
 # Case insensitive.
 zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} l:|=* r:|=*'
 
@@ -57,9 +65,6 @@ plugins=({{ ohmyzsh_plugins | join(' ') }})
 
 # Source oh-my-zsh.
 source $ZSH/oh-my-zsh.sh
-
-# Homebrew share directory, where the theme and the extra plugins live.
-share_path="{{ ohmyzsh_homebrew_share_path }}"
 
 # Enable powerlevel10k theme.
 source ${share_path}/{{ ohmyzsh_theme_package }}/{{ ohmyzsh_theme_package }}.zsh-theme
@@ -87,10 +92,15 @@ fi
 
 # Source fzf.
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+[ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 {% if ohmyzsh_task_completion %}
 
 # go-task completions, if go-task is installed.
 command -v task >/dev/null 2>&1 && eval "$(task --completion zsh)"
+{% endif %}
+{% if ohmyzsh_kubectl_completion %}
+
+command -v kubectl >/dev/null 2>&1 && source <(kubectl completion zsh)
 {% endif %}
 
 # Function for deleting a given line number in the known_hosts file.
@@ -101,6 +111,14 @@ knownrm() {
   else
     sed -i '' "$1d" ~/.ssh/known_hosts
   fi
+}
+
+function b64e() {
+  echo -n "${1}" | base64
+}
+
+function b64d() {
+  echo -n "${1}" | base64 --decode
 }
 {% if ohmyzsh_vault_addr | length > 0 %}
 
@@ -120,6 +138,9 @@ function vault-login() {
 
 # Run a CI image over the current working directory.
 function ci-run() {
+{% if ohmyzsh_vault_addr | length > 0 %}
+  vault token lookup >/dev/null 2>&1 || vault-login "${2}"
+{% endif %}
   docker_registry={{ ohmyzsh_ci_registry }}
   case "${1}" in
 {% for alias, image in ohmyzsh_ci_images | dictsort %}
@@ -135,6 +156,16 @@ function ci-run() {
       docker_image="${1}"
     ;;
   esac
-  docker run -e VAULT_ADDR=${VAULT_ADDR} -e USER_VAULT_TOKEN=${VAULT_TOKEN} --rm -it --volume "${HOME}/.docker/.env:/ci/.env:ro" --volume "$PWD:/ci:rw" --workdir "/ci" ${docker_registry}/${docker_image} /bin/bash
+  docker run --network host \
+    -e VAULT_ADDR=${VAULT_ADDR} \
+    -e USER_VAULT_TOKEN=${VAULT_TOKEN} \
+    -e GL_USER_TOKEN=${GL_USER_TOKEN:-} \
+    -e TF_STATE_NAME=${TF_STATE_NAME:-} \
+    --rm -it \
+    --volume "$PWD:/ci:rw" \
+    --volume "${HOME}/.ssh/ansible:/home/ansible/ssh_key" \
+    --volume "${HOME}/.docker/.env:/ci/.env:ro" \
+    --workdir "/ci" \
+    ${docker_registry}/${docker_image} /bin/bash --init-file .env
 }
 {% endif %}

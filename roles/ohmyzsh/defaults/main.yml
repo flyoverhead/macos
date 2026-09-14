@@ -48,16 +48,20 @@ ohmyzsh_plugins:
 ohmyzsh_venv_path: '{{ ohmyzsh_user_home }}/.venv'
 ohmyzsh_homebrew_bin_path: /opt/homebrew/bin
 ohmyzsh_ssh_key_file: '{{ ohmyzsh_user_home }}/.ssh/id_ed25519'
+ohmyzsh_ssh_add_args: --apple-load-keychain
 
 ohmyzsh_force_reinstall: false
+
+ohmyzsh_extra_fpath: []
+  # - $HOME/.docker/completions
 
 # Bind up/down arrow to history-substring-search. Only rendered when that
 # plugin is installed.
 ohmyzsh_history_substring_bindkeys: true
 
-# Emit `eval "$(task --completion zsh)"`, guarded by a command check so a
-# shell without go-task still starts.
+# Completion evals, each guarded by a command check.
 ohmyzsh_task_completion: true
+ohmyzsh_kubectl_completion: true
 
 # Empty means the corresponding block is left out of `.zshrc` entirely.
 ohmyzsh_vault_addr: ''
