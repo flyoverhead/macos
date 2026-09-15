@@ -31,7 +31,7 @@ Installing the collection dependencies:
 
 ```bash
 ansible-galaxy collection install -r requirements.yml
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 Installing the collection itself:
@@ -82,7 +82,7 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 
 | Name | Description |
 | :--- | :--- |
-| [`packages`](roles/packages/README.md) | Homebrew, formulae, casks, DMGs, binaries, pip; git, ssh, nano, vim, iTerm2, VS Code and Docker configuration |
+| [`packages`](roles/packages/README.md) | Homebrew, formulae, casks, DMGs, binaries, uv; git, ssh, nano, vim, iTerm2, VS Code and Docker configuration |
 | [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, powerlevel10k, plugins, `.zshrc` |
 | [`dock`](roles/dock/README.md) | Dock contents and ordering via dockutil |
 | [`osx`](roles/osx/README.md) | System preferences via the `defaults` database |
