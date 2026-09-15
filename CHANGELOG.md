@@ -2,6 +2,35 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 1.2.0
+
+### Changed
+
+- **`packages_pip` is installed with uv instead of pip.** `tasks/pip.yml`
+  creates `packages_venv_path` with `uv venv`, pinned to Homebrew's `python3`
+  exactly as the old `virtualenv_command` was, and populates it with
+  `uv pip install`, pinned to `{{ packages_venv_path }}/bin/python`. The
+  variable keeps its name and meaning, and `packages_venv_path` is unchanged,
+  so `vscode.j2` and `ohmyzsh`'s `zshrc.j2` need no edit.
+- The role now fails with an explanation when `uv` is absent from
+  `packages_brew`, instead of reporting `command not found`.
+- **`--check` no longer reports what the venv and install tasks would do.**
+  Both are `ansible.builtin.command`, which has no check-mode support, so
+  under `--check --diff` they now show as *skipped* rather than *changed*;
+  `ansible.builtin.pip` reported real check-mode diffs.
+
+### Added
+
+- `tests/unit/`, following `flyoverhead.server`'s convention, and a
+  `task test` target. `ansible.builtin.command` is skipped under `--check`,
+  so the existing check-mode play cannot see these tasks at all.
+
+### Removed
+
+- The venv no longer contains `pip`. `uv venv` does not seed one; add
+  `--seed` to the `create virtualenv` task if something calls
+  `<venv>/bin/pip` directly.
+
 ## 1.1.0
 
 ### Added

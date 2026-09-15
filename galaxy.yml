@@ -2,7 +2,7 @@
 
 namespace: flyoverhead
 name: macos
-version: 1.1.0
+version: 1.2.0
 readme: README.md
 authors:
   - flyoverhead
@@ -34,6 +34,7 @@ build_ignore:
   - .ansible-lint
   - .claude
   - .pre-commit-config.yaml
+  - .superpowers
   - .tflint.hcl
   - .vagrant
   - .venv

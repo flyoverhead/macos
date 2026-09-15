@@ -57,7 +57,7 @@ packages_dmg: []
   #   url: https://example.com/example.dmg
 
 packages_pip: []
-  # - pip
+  # - ansible-lint
 
 packages_rosetta_install: false
 

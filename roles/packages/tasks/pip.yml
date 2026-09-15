@@ -1,11 +1,38 @@
 ---
 
+- name: pip | find uv
+  ansible.builtin.stat:
+    path: '{{ packages_homebrew_bin_path }}/uv'
+  register: packages_uv_binary
+
+- name: pip | fail when uv is missing
+  when:
+    - not packages_uv_binary.stat.exists
+  ansible.builtin.fail:
+    msg: >-
+      {{ packages_homebrew_bin_path }}/uv does not exist. Add `uv` to
+      packages_brew, or leave packages_pip empty to skip this file.
+
+- name: pip | create virtualenv
+  become: true
+  become_user: '{{ packages_user_name }}'
+  ansible.builtin.command:
+    cmd: >-
+      {{ packages_homebrew_bin_path }}/uv venv
+      --python {{ packages_homebrew_bin_path }}/python3
+      --no-python-downloads
+      {{ packages_venv_path }}
+    creates: '{{ packages_venv_path }}/bin/python'
+
 - name: pip | install packages
   become: true
   become_user: '{{ packages_user_name }}'
-  ansible.builtin.pip:
-    name: '{{ packages_pip }}'
-    state: present
-    virtualenv: '{{ packages_venv_path }}'
-    virtualenv_command: '{{ packages_homebrew_bin_path }}/python3 -m venv'
-    extra_args: --upgrade
+  ansible.builtin.command:
+    cmd: >-
+      {{ packages_homebrew_bin_path }}/uv pip install --upgrade
+      --python {{ packages_venv_path }}/bin/python
+      {{ packages_pip | join(' ') }}
+  environment:
+    NO_COLOR: '1'
+  register: packages_uv_pip
+  changed_when: "'Installed' in packages_uv_pip.stderr"

@@ -15,13 +15,19 @@ tasks:
     desc: Install the collection and python dependencies
     cmds:
       - ansible-galaxy collection install -r requirements.yml
-      - pip install -r requirements.txt
+      - uv pip install --python "$HOME/.venv/bin/python" -r requirements.txt
 
   lint:
     desc: Run ansible-lint and yamllint over the collection
     cmds:
       - ansible-lint
       - yamllint .
+
+  test:
+    desc: Run the unit tests
+    dir: tests/unit
+    cmds:
+      - python3 -m pytest -q
 
   build:
     desc: Build the collection tarball

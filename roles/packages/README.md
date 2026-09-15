@@ -1,7 +1,7 @@
 # `flyoverhead.macos.packages`
 
 Installs Homebrew and then everything else: brew formulae, casks and taps, DMG
-images, standalone binaries from an archive URL, and pip packages into a
+images, standalone binaries from an archive URL, and Python packages into a
 virtualenv. Afterwards it configures git, ssh, nano, vim, iTerm2, VS Code /
 VSCodium and Docker, and deploys a pre-commit hook with a set of linter
 configurations.
@@ -18,7 +18,7 @@ Every list defaults to empty, so the role installs nothing until told to.
 | `packages_user_group` | That user's primary group | `{{ ansible_user_gid }}` |
 | `packages_user_home` | That user's home directory | `{{ ansible_user_dir }}` |
 | `packages_tmp_path` | Scratch directory for DMG and archive downloads | `/Users/me/tmp` |
-| `packages_venv_path` | Virtualenv that pip packages go into | `/Users/me/.venv` |
+| `packages_venv_path` | Virtualenv `packages_pip` is installed into, created with `uv venv` | `/Users/me/.venv` |
 | `packages_binary_path` | Where archive binaries are installed | `/usr/local/bin` |
 
 ### Homebrew
@@ -43,7 +43,7 @@ Every list defaults to empty, so the role installs nothing until told to.
 | :--- | :--- | :--- |
 | `packages_dmg` | Disk images: `name`, `url`, optional `app_name` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_binary` | Archives holding a single binary: `name`, `url` | Definition example in [defaults/main.yml](defaults/main.yml) |
-| `packages_pip` | Packages installed into `packages_venv_path` | `[ansible-lint, yamllint]` |
+| `packages_pip` | Packages installed into `packages_venv_path` with `uv pip install`. Requires `uv` in `packages_brew` | `[ansible-lint, yamllint]` |
 | `packages_rosetta_install` | Install Rosetta 2. Skipped on Intel | `false` |
 
 ### Configuration
