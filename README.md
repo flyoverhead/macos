@@ -23,6 +23,9 @@ install.
 
 - macOS on Apple Silicon, with an administrator account for `become`
 
+- `uv`, from `packages_brew`: `roles/packages/tasks/pip.yml` hard-fails
+  without it
+
 - Task `>=3.20` and [Tart](https://tart.run/), for the test harness only
 
 ### Installation
@@ -31,7 +34,7 @@ Installing the collection dependencies:
 
 ```bash
 ansible-galaxy collection install -r requirements.yml
-uv pip install -r requirements.txt
+uv pip install --python "$HOME/.venv/bin/python" -r requirements.txt
 ```
 
 Installing the collection itself:
