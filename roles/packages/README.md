@@ -3,7 +3,7 @@
 Installs Homebrew and then everything else: brew formulae, casks and taps, DMG
 images, standalone binaries from an archive URL, and Python packages into a
 virtualenv. Afterwards it configures git, ssh, nano, vim, iTerm2, VS Code /
-VSCodium and Docker, and deploys a pre-commit hook with a set of linter
+VSCodium, Docker and Claude Code, and deploys a pre-commit hook with a set of linter
 configurations.
 
 Every list defaults to empty, so the role installs nothing until told to.
@@ -59,6 +59,17 @@ Every list defaults to empty, so the role installs nothing until told to.
 | `packages_pre_commit_hooks_path` | Where the hook and configs are installed | `/Users/me/.pre-commit/hooks` |
 | `packages_pre_commit_configs` | Configs the hook copies into a repository | Definition example in [defaults/main.yml](defaults/main.yml) |
 
+### Claude Code
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `packages_claude_config_path` | Claude Code config directory, i.e. `CLAUDE_CONFIG_DIR` | `/Users/me/.claude` |
+| `packages_claude_settings` | Deep-merged over `settings.json`. Empty leaves the file alone | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `packages_claude_md` | Written verbatim to `CLAUDE.md`. Empty leaves the file alone | `''` |
+| `packages_claude_statusline_install` | Deploy `statusline.sh` into the config directory | `false` |
+| `packages_claude_json_path` | Claude Code's state file, `.claude.json` | `/Users/me/.claude.json` |
+| `packages_claude_mcp_servers` | User-scope MCP servers merged into the state file. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
+
 `packages_ssh_hosts` renders one stanza per entry, in order. An option whose
 value is a list is emitted once per element, which is what `IdentityFile`
 needs:
@@ -98,6 +109,25 @@ Quote `yes` and `no` — unquoted, YAML turns them into booleans and ssh rejects
   `~/.docker/config.json` are templated with `force: true` every run. Local
   edits are lost. `~/.ssh/config` is the exception: it is managed with
   `blockinfile`, so only the delimited block is replaced.
+- **Claude Code's `settings.json` is merged, not overwritten.** Claude Code
+  rewrites that file itself, so `packages_claude_settings` is deep-merged over
+  whatever is there: keys it does not name survive, keys it names win, and a
+  list it names replaces the existing list rather than extending it. Removing
+  a key from the variable does not remove it from the file.
+- **MCP servers are written into Claude Code's state file.** `.claude.json`
+  holds the OAuth account, caches and per-project history, and Claude Code
+  rewrites it constantly, so each server in `packages_claude_mcp_servers`
+  replaces the server of that name whole and nothing else in the file is
+  touched. Unlisted servers are kept, and removing one from the variable does
+  not remove it. Apply with no Claude Code session running, or a live session
+  may save its in-memory copy over the change. The file is set to `0600`, and
+  the tasks are `no_log: true`, so a failure will not show its content. It
+  sits at `~/.claude.json` by default but inside `CLAUDE_CONFIG_DIR` when that
+  is set — keep `packages_claude_json_path` in step.
+- **The Claude Code status line reads `CLAUDE_CONFIG_DIR`.** `statusline.sh`
+  looks for `settings.json` under `$CLAUDE_CONFIG_DIR`, falling back to
+  `~/.claude`. Deploying it does not enable it; set `statusLine` in
+  `packages_claude_settings`.
 - **`~/.docker/config.json` is written from `packages_docker_config`
   verbatim.** Whatever you put there is the file, including `auths`. Supply it
   from a vault, and note the task is `no_log: true`, so a failure will not show

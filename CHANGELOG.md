@@ -2,6 +2,25 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 1.3.0
+
+### Added
+
+- **Claude Code configuration in `packages`.** `tasks/claude.yml` manages
+  `settings.json`, `CLAUDE.md` and a `statusline.sh` in
+  `packages_claude_config_path`. Each is opt-in: `packages_claude_settings`,
+  `packages_claude_md` and `packages_claude_statusline_install` default to
+  empty or false, and the include is skipped entirely when all three are.
+- `settings.json` is deep-merged rather than templated, because Claude Code
+  writes to it at runtime; key order of the existing file is preserved, so an
+  unchanged run reports no change.
+- User-scope MCP servers: `packages_claude_mcp_servers` is merged into
+  `mcpServers` in `packages_claude_json_path`, replacing each listed server
+  whole. The rest of the state file is preserved byte-for-byte in format
+  (2-space indent, raw UTF-8, no trailing newline), and the file is set to
+  `0600`.
+- `tests/unit/test_claude_tasks.py`.
+
 ## 1.2.0
 
 ### Changed

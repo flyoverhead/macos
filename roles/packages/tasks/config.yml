@@ -232,3 +232,12 @@
         mode: '0600'
         force: true
       no_log: true
+
+- name: config | claude code
+  ansible.builtin.include_tasks:
+    file: claude.yml
+  when: >-
+    packages_claude_settings | length > 0
+    or packages_claude_md | length > 0
+    or packages_claude_statusline_install
+    or packages_claude_mcp_servers | length > 0
