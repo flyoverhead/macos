@@ -100,6 +100,7 @@ action:
 '''
 
 import os
+import re
 
 from ansible.module_utils.basic import AnsibleModule
 
@@ -111,13 +112,16 @@ EXTENSION_DIRS = {
     'codium': '.vscode-oss',
 }
 
-# `code --install-extension` emits this deprecation warning on some Node
-# builds. It is not an error, so it must not fail the task.
-IGNORED_STDERR = '[DEP0005]'
+# The editor CLI prints Node deprecation warnings (DEP0005, DEP0169, ...) to
+# stderr with rc 0; they are not errors, so they must not fail the task.
+NODE_WARNING = re.compile(
+    r'^\(node:\d+\) \[DEP\d+\]|^\(Use `.* --trace-deprecation')
 
 
 def _failed(rc, stderr):
-    return rc != 0 or (stderr and IGNORED_STDERR not in stderr)
+    unexpected = [line for line in stderr.splitlines()
+                  if line.strip() and not NODE_WARNING.match(line)]
+    return rc != 0 or bool(unexpected)
 
 
 def installed_extensions(module, executable):

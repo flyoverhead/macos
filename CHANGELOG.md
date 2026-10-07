@@ -2,6 +2,19 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 2.1.1
+
+### Fixed
+
+- **`vscode_extension` failed every already-installed extension on current
+  VSCodium.** Any stderr counted as an error unless it contained `[DEP0005]`.
+  VSCodium 1.135 prints a Node `[DEP0169]` (`url.parse()`) warning on
+  `--install-extension --force` with rc 0, so the upgrade path failed while
+  the install had succeeded. Node deprecation warnings (`(node:N) [DEPnnnn]`
+  and the `--trace-deprecation` hint) are now filtered line by line; any other
+  stderr still fails. Previously a `[DEP0005]` anywhere hid every other line.
+- `tests/unit/test_vscode_extension.py`.
+
 ## 2.1.0
 
 ### Changed
