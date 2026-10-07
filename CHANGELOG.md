@@ -2,6 +2,17 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 3.0.1
+
+### Fixed
+
+- **`zsh-history-substring-search` was sourced before
+  `zsh-syntax-highlighting`.** The default `ohmyzsh_install_plugins` was in
+  alphabetical order, and the list order is the source order. The
+  history-substring-search script requires syntax-highlighting to be loaded
+  first. The two entries are swapped. An inventory that sets its own list
+  needs the same order.
+
 ## 3.0.0
 
 ### Changed

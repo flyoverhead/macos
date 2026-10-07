@@ -19,16 +19,17 @@ ohmyzsh_dependencies:
 # `.zshrc`. `source` differs per plugin, which is why this is a list of
 # mappings rather than plain names. It previously also carried `url` and
 # `branch` fields that nothing ever read -- the plugins have always come from
-# Homebrew, not from a git clone.
+# Homebrew, not from a git clone. Sourced in list order:
+# zsh-history-substring-search must come after zsh-syntax-highlighting.
 ohmyzsh_install_plugins:
   - name: zsh-autocomplete
     source: zsh-autocomplete.plugin.zsh
   - name: zsh-autosuggestions
     source: zsh-autosuggestions.zsh
-  - name: zsh-history-substring-search
-    source: zsh-history-substring-search.zsh
   - name: zsh-syntax-highlighting
     source: zsh-syntax-highlighting.zsh
+  - name: zsh-history-substring-search
+    source: zsh-history-substring-search.zsh
 
 # Rendered to `~/.config/starship.toml`. `ohmyzsh_starship_settings_extra` is
 # merged over it recursively, so one module can change without copying it all.
