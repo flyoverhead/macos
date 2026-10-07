@@ -101,9 +101,9 @@ Quote `yes` and `no` — unquoted, YAML turns them into booleans and ssh rejects
 ## Behaviour worth knowing before the first run
 
 - **Homebrew is installed by git clone at a branch, not a release.** With
-  `packages_homebrew_version` at its `master` default, what you get reflects
-  upstream at that moment. `update: false` means an existing checkout is left
-  alone.
+  `packages_homebrew_version` at its `master` default, the first run gets
+  upstream as of that moment; `update: false` then leaves the checkout alone,
+  so later runs change nothing unless `packages_brew_upgrade` is set.
 - **Configuration files are overwritten, not merged.** `~/.vimrc`,
   `~/.config/nano/nanorc`, the VS Code `settings.json` and
   `~/.docker/config.json` are templated with `force: true` every run. Local
@@ -112,8 +112,10 @@ Quote `yes` and `no` — unquoted, YAML turns them into booleans and ssh rejects
 - **Claude Code's `settings.json` is merged, not overwritten.** Claude Code
   rewrites that file itself, so `packages_claude_settings` is deep-merged over
   whatever is there: keys it does not name survive, keys it names win, and a
-  list it names replaces the existing list rather than extending it. Removing
-  a key from the variable does not remove it from the file.
+  list it names replaces the existing list rather than extending it -- so a
+  managed `permissions.allow` discards every permission approved
+  interactively since the last run. Removing a key from the variable does not
+  remove it from the file.
 - **MCP servers are written into Claude Code's state file.** `.claude.json`
   holds the OAuth account, caches and per-project history, and Claude Code
   rewrites it constantly, so each server in `packages_claude_mcp_servers`

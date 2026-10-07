@@ -2,6 +2,23 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 1.3.1
+
+### Changed
+
+- Documentation only. The collection README's Gotchas now cover the Claude
+  Code tasks -- `CLAUDE.md` and `statusline.sh` are replaced, `settings.json`
+  and `.claude.json` are merged, and a managed list such as
+  `permissions.allow` replaces the existing one, dropping interactively
+  approved entries -- and the pre-commit hook directory and the write-once
+  iTerm2 profile.
+- Corrected: Homebrew and Oh My Zsh are cloned only on the first run and never
+  updated by the clone task (`update: false`); the README said every run
+  reflects upstream. The Dock waits after each change, not between every item.
+- The version badge read 1.0.0.
+
+No role, task, template or default changed.
+
 ## 1.3.0
 
 ### Added

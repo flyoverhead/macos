@@ -1,6 +1,6 @@
 # `flyoverhead.macos`
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-1.3.1-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%20%7C%2026-000000?logo=apple&logoColor=white)](#-supported-os)
@@ -107,19 +107,32 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 ## ⚠️ Gotchas
 
 - **Configuration files are replaced, not merged.** `~/.zshrc`, `~/.p10k.zsh`,
-  `~/.vimrc`, `~/.config/nano/nanorc`, the VS Code `settings.json` and
-  `~/.docker/config.json` are rewritten on every run. `.zshrc` is backed up
-  first; the others are not. `~/.ssh/config` is the exception — it is managed
-  with `blockinfile`, so only the delimited block is touched.
+  `~/.vimrc`, `~/.config/nano/nanorc`, the VS Code `settings.json`,
+  `~/.docker/config.json` and the pre-commit hook directory are rewritten on
+  every run, as are Claude Code's `CLAUDE.md` and `statusline.sh` when enabled.
+  `.zshrc` is backed up first; the others are not. Two exceptions:
+  `~/.ssh/config` is managed with `blockinfile`, so only the delimited block is
+  touched, and the iTerm2 profile is written only when it does not exist yet.
+- **Claude Code's `settings.json` and `.claude.json` are merged, not
+  replaced**, because Claude Code rewrites both at runtime. Keys you name win
+  and keys you drop from the variables stay in the file. **A list you name
+  replaces the existing one**, so a `permissions.allow` in
+  `packages_claude_settings` resets the allow list on every run and drops
+  anything approved interactively since. MCP servers are a read-modify-write
+  of the whole state file: run with no Claude Code session open, or a live
+  session may save its in-memory copy over the change.
 - **`packages_docker_config` becomes `~/.docker/config.json` verbatim**,
   including any `auths` you put in it. Supply it from a vault. The task is
   `no_log: true`, as is the `git_config` loop, since a signing key is usually
   set there.
 - **`dock` is slow by design.** Every dockutil write restarts the Dock, and the
-  role waits `dock_apply_timeout` (15s) between items, because a rapid sequence
-  of writes loses changes.
-- **Homebrew is installed from a git branch, not a release.** A run reflects
-  upstream at that moment.
+  role waits `dock_apply_timeout` (15s) after each change, because a rapid
+  sequence of writes loses changes. Items already in place cost nothing.
+- **Homebrew and Oh My Zsh are cloned from a git branch, not a release**
+  (`master` by default), and only on the first run: `update: false` leaves an
+  existing checkout alone. Homebrew itself is updated only when
+  `packages_brew_upgrade` is set; Oh My Zsh by its own auto-updater, which the
+  managed `.zshrc` runs every 3 days, or by `ohmyzsh_force_reinstall`.
 - **Dock labels are localised.** `dock_items_remove` matches what the Dock
   displays, so the English names will not match on a non-English system.
 
