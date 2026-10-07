@@ -72,6 +72,13 @@ packages_vscode_extensions: []
   # - redhat.ansible
   # - hashicorp.terraform
 
+# Deep-merged over the role's base settings (templates/vscode.j2) and then
+# over the editor's settings.json, so keys set in the editor survive.
+packages_vscode_settings: {}
+  # editor.tabSize: 4
+  # '[go]':
+  #   editor.defaultFormatter: golang.go
+
 # Global git options, applied with `git config --global`. Values are not
 # logged, because a signing key is commonly set here.
 packages_git_config: []

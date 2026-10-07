@@ -2,6 +2,28 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 2.1.0
+
+### Changed
+
+- **The VS Code `settings.json` is deep-merged instead of replaced.** It was
+  templated with `force: true`, so every run deleted the settings changed in
+  the editor since. Now the editor's file is the base, the role's settings
+  (`templates/vscode.j2`) go over it, and the new
+  `packages_vscode_settings` goes over both. The parsed content is compared,
+  so formatting alone is not a change. A key removed from the variable stays
+  in the file, and a `settings.json` with comments fails to parse.
+
+### Added
+
+- `packages_vscode_settings` (default `{}`).
+- `tests/unit/test_vscode_config.py`.
+
+### Fixed
+
+- **`nanorc` included `share/nano/extra/*.nanorc`**, a directory Homebrew's
+  nano does not install. The include is gone.
+
 ## 2.0.1
 
 ### Fixed

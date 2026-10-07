@@ -53,6 +53,7 @@ Every list defaults to empty, so the role installs nothing until told to.
 | `packages_git_config` | Global git options: `name`, `value`. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_ssh_hosts` | `~/.ssh/config` stanzas: `host` plus an `options` mapping | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_vscode_extensions` | Extension identifiers | `[redhat.ansible]` |
+| `packages_vscode_settings` | Deep-merged over the base settings and the editor's `settings.json` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_docker_config` | Deep-merged over `~/.docker/config.json`. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_pre_commit_install` | Deploy the pre-commit hook and configs | `true` |
 | `packages_pre_commit_path` | Git template directory | `/Users/me/.pre-commit` |
@@ -93,11 +94,18 @@ Quote `yes` and `no` — unquoted, YAML turns them into booleans and ssh rejects
   `packages_homebrew_version` at its `master` default, the first run gets
   upstream as of that moment; `update: false` then leaves the checkout alone,
   so later runs change nothing unless `packages_brew_upgrade` is set.
-- **Configuration files are overwritten, not merged.** `~/.vimrc`,
-  `~/.config/nano/nanorc` and the VS Code `settings.json` are templated with
-  `force: true` every run. Local edits are lost. `~/.ssh/config` is managed
-  with `blockinfile`, so only the delimited block is replaced, and
-  `~/.docker/config.json` is merged (below).
+- **Configuration files are overwritten, not merged.** `~/.vimrc` and
+  `~/.config/nano/nanorc` are templated with `force: true` every run. Local
+  edits are lost. `~/.ssh/config` is managed with `blockinfile`, so only the
+  delimited block is replaced; the VS Code `settings.json` and
+  `~/.docker/config.json` are merged (below).
+- **The VS Code `settings.json` is deep-merged.** The editor's own file is the
+  base, the role's settings (`templates/vscode.j2`) go over it, and
+  `packages_vscode_settings` goes over both, so settings changed in the editor
+  survive unless the role or the variable names them. Removing a key from the
+  variable does not remove it from the file. The parsed content is compared,
+  so the editor's formatting is not a change. The file must be plain JSON: a
+  `settings.json` with comments or trailing commas fails to parse.
 - **`packages_docker_config` is deep-merged over `~/.docker/config.json`.**
   Docker Desktop keeps its own keys there (`currentContext`, `features`,
   `plugins`), so they survive; keys you name win and a list you name replaces
