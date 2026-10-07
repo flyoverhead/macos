@@ -1,10 +1,5 @@
 # {{ ansible_managed }}
 
-# Enable Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # Custom $PATH with extra locations.
 export PATH={{ ohmyzsh_venv_path }}/bin:{{ ohmyzsh_homebrew_bin_path }}:/usr/local/bin:/usr/local/sbin:$HOME/bin:$PATH
 
@@ -43,7 +38,7 @@ zstyle :omz:plugins:ssh-agent agent-forwarding yes
 zstyle :omz:plugins:ssh-agent identities {{ ohmyzsh_ssh_key_file }}
 zstyle :omz:plugins:ssh-agent ssh-add-args {{ ohmyzsh_ssh_add_args }}
 
-# Homebrew share directory, where the theme and the extra plugins live.
+# Homebrew share directory, where the extra plugins live.
 share_path="{{ ohmyzsh_homebrew_share_path }}"
 
 # Completions.
@@ -60,14 +55,17 @@ zstyle ':completion:*' matcher-list 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 3
 
+# The prompt comes from starship, not an Oh My Zsh theme.
+ZSH_THEME=""
+
 # Enable plugins.
 plugins=({{ ohmyzsh_plugins | join(' ') }})
 
 # Source oh-my-zsh.
 source $ZSH/oh-my-zsh.sh
 
-# Enable powerlevel10k theme.
-source ${share_path}/{{ ohmyzsh_theme_package }}/{{ ohmyzsh_theme_package }}.zsh-theme
+# Starship prompt.
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 {% if ohmyzsh_install_plugins | length > 0 %}
 
 # Enable extra plugins.
@@ -86,9 +84,6 @@ bindkey "^[[B" history-substring-search-down
 if [ -f ~/.aliases ]; then
   source ~/.aliases
 fi
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Source fzf.
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -169,3 +164,9 @@ function ci-run() {
     ${docker_registry}/${docker_image} /bin/bash --init-file .env
 }
 {% endif %}
+
+# Unmanaged local additions, sourced last.
+for zshrc_file in ~/.zshrc.d/*.zsh(N); do
+  source "$zshrc_file"
+done
+unset zshrc_file

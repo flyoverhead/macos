@@ -2,6 +2,38 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 3.0.0
+
+### Changed
+
+- **BREAKING: `ohmyzsh` uses starship instead of powerlevel10k.**
+  powerlevel10k's README now says it has "very limited support", and the role
+  copied an 1828-line `p10k configure` output verbatim, with no backup, every
+  run. That file turned out to be the bundled `rainbow` preset plus 18
+  settings. The role now installs the `starship` formula, starts it from
+  `.zshrc`, and renders `~/.config/starship.toml` from
+  `ohmyzsh_starship_settings`. The default is a two-line powerline prompt
+  close to the old one: OS, directory and git on the left; status, duration,
+  jobs, kubernetes, terraform, aws, virtualenv and time on the right. Lost:
+  the transient prompt and the instant prompt, which starship lacks on zsh.
+- `ohmyzsh_theme` and `ohmyzsh_theme_package` are removed, and so is
+  `files/p10k.zsh`. An upgrade deletes `~/.p10k.zsh`; the `powerlevel10k`
+  formula stays installed.
+- `.zshrc` sources `~/.zshrc.d/*.zsh` last, for local additions that survive a
+  run, and is checked with `zsh -n` before it replaces the old one.
+
+### Added
+
+- `ohmyzsh_starship_settings`, `ohmyzsh_starship_settings_extra` (merged
+  recursively over it) and `ohmyzsh_starship_config_path`.
+
+### Fixed
+
+- **Homebrew formulae were only installed on a machine without Oh My Zsh.**
+  `install.yml` as a whole was skipped once `~/.oh-my-zsh` existed, so a
+  dependency or plugin added to the lists later was never installed. Only
+  the clone was meant to run once, and `update: false` already ensures that.
+
 ## 2.2.0
 
 ### Added

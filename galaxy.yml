@@ -2,7 +2,7 @@
 
 namespace: flyoverhead
 name: macos
-version: 2.2.0
+version: 3.0.0
 readme: README.md
 authors:
   - flyoverhead
@@ -15,7 +15,7 @@ tags:
   - homebrew
   - macos
   - ohmyzsh
-  - powerlevel10k
+  - starship
   - shell
   - tools
   - workstation

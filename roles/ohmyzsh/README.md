@@ -1,7 +1,8 @@
 # `flyoverhead.macos.ohmyzsh`
 
-Installs Oh My Zsh with the powerlevel10k theme and a set of Homebrew-provided
-plugins, writes `.zshrc` and `.p10k.zsh`, and makes zsh the user's login shell.
+Installs Oh My Zsh, the starship prompt and a set of Homebrew-provided plugins,
+writes `.zshrc` and `~/.config/starship.toml`, and makes zsh the user's login
+shell.
 
 This is the macOS counterpart of `flyoverhead.server.ohmyzsh`. They are not
 interchangeable: this one installs through Homebrew, takes its fonts from a
@@ -21,8 +22,9 @@ as `ssh-add --apple-load-keychain`.
 | `ohmyzsh_dependencies` | Formulae installed first | `[curl, fzf, git, zsh]` |
 | `ohmyzsh_install_plugins` | Plugin formulae to install and source: `name`, `source` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `ohmyzsh_plugins` | Plugins written into the `plugins=(...)` line | `[git, pip, python]` |
-| `ohmyzsh_theme` | `ZSH_THEME` value | `powerlevel10k/powerlevel10k` |
-| `ohmyzsh_theme_package` | Formula providing the theme, and the directory it is sourced from | `powerlevel10k` |
+| `ohmyzsh_starship_settings` | The whole starship config as a mapping, rendered to TOML | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `ohmyzsh_starship_settings_extra` | Merged recursively over `ohmyzsh_starship_settings` | `{time: {disabled: true}}` |
+| `ohmyzsh_starship_config_path` | Where the config is written | `/Users/me/.config/starship.toml` |
 | `ohmyzsh_venv_path` | Virtualenv prepended to `$PATH` | `/Users/me/.venv` |
 | `ohmyzsh_homebrew_bin_path` | Homebrew `bin` directory | `/opt/homebrew/bin` |
 | `ohmyzsh_ssh_key_file` | Identity given to the `ssh-agent` plugin; a directory loads every key in it | `/Users/me/.ssh/id_ed25519` |
@@ -61,21 +63,32 @@ by default `.zshrc` contains neither.
 
 | Fact | Description |
 | :--- | :--- |
-| `ohmyzsh_installed` | Whether `~/.oh-my-zsh` already exists; a false value triggers the install |
-| `ohmyzsh_homebrew_share_path` | Homebrew `share` directory, derived from the bin path, where the theme and plugins are sourced from |
+| `ohmyzsh_installed` | Whether `~/.oh-my-zsh` already exists |
+| `ohmyzsh_homebrew_share_path` | Homebrew `share` directory, derived from the bin path, where the plugins are sourced from |
 
 ## Behaviour worth knowing before the first run
 
-- **`~/.zshrc` and `~/.p10k.zsh` are overwritten every run.** `.zshrc` is
-  written with `backup: true`, so the previous version is kept beside it;
-  `.p10k.zsh` is not backed up. Anything you want to survive belongs in
-  `~/.aliases`, which the template sources if present.
+- **`~/.zshrc` and `starship.toml` are overwritten every run**, each with
+  `backup: true`, so the previous version is kept beside it. Local additions
+  belong in `~/.zshrc.d/*.zsh`, sourced last, or `~/.aliases`; prompt changes
+  belong in `ohmyzsh_starship_settings_extra`. `.zshrc` is checked with
+  `zsh -n` before it replaces the old one.
+- **Starship cannot layer settings over a preset**: it reads one TOML file. The
+  default mapping is a two-line powerline prompt; replace
+  `ohmyzsh_starship_settings` for a different look, or extend it through the
+  `_extra` variable. Keys written as YAML become TOML as they are, so check
+  them against the [starship docs](https://starship.rs/config/) — starship
+  only warns about an unknown key when it renders the prompt.
+- **Upgrading from 2.x removes `~/.p10k.zsh`.** The `powerlevel10k` formula is
+  left installed.
 - **The role needs egress to GitHub and to Homebrew.** Oh My Zsh is cloned from
   `github.com` at a branch, not a release, so the first run gets upstream as
   of that moment. An existing checkout is never updated by the role
-  (`update: false`); set `ohmyzsh_force_reinstall` to re-clone it.
-- **The theme renders as boxes without the font.** powerlevel10k needs MesloLGS
-  NF, which comes from the `font-meslo-for-powerlevel10k` cask — install it via
+  (`update: false`); set `ohmyzsh_force_reinstall` to re-clone it. The
+  Homebrew formulae are checked on every run, so one added to a list is
+  installed on a machine that already has Oh My Zsh.
+- **The prompt renders as boxes without a Nerd Font.** MesloLGS NF comes from
+  the `font-meslo-for-powerlevel10k` cask — install it via
   the `packages` role, or the prompt will look broken. Your *terminal* also has
   to be set to use it.
 - **The login shell change takes effect at next login**, not in the current
@@ -95,13 +108,13 @@ by default `.zshrc` contains neither.
 
 ## Check mode
 
-`--check --diff` reports drift in `.zshrc` and `.p10k.zsh` against a machine
+`--check --diff` reports drift in `.zshrc` and `starship.toml` against a machine
 where Oh My Zsh is already installed. The role has no `command` tasks, so
 nothing needs a check-mode exemption.
 
 Against a machine without Oh My Zsh, the clone and the Homebrew installs are
 reported as pending without running, and the `.zshrc` diff is rendered against
-a theme and plugin set that are not on the machine yet.
+a prompt and plugin set that are not on the machine yet.
 
 ## Example playbook
 
