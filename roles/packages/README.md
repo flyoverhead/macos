@@ -3,8 +3,8 @@
 Installs Homebrew and then everything else: brew formulae, casks and taps, DMG
 images, standalone binaries from an archive URL, and Python packages into a
 virtualenv. Afterwards it configures git, ssh, nano, vim, iTerm2, VS Code /
-VSCodium, Docker and Claude Code, and deploys a pre-commit hook with a set of linter
-configurations.
+VSCodium and Docker, and deploys a pre-commit hook with a set of linter
+configurations. Claude Code lives in its own role, `flyoverhead.macos.claude`.
 
 Every list defaults to empty, so the role installs nothing until told to.
 
@@ -53,22 +53,11 @@ Every list defaults to empty, so the role installs nothing until told to.
 | `packages_git_config` | Global git options: `name`, `value`. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_ssh_hosts` | `~/.ssh/config` stanzas: `host` plus an `options` mapping | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_vscode_extensions` | Extension identifiers | `[redhat.ansible]` |
-| `packages_docker_config` | Written verbatim to `~/.docker/config.json`. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
+| `packages_docker_config` | Deep-merged over `~/.docker/config.json`. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `packages_pre_commit_install` | Deploy the pre-commit hook and configs | `true` |
 | `packages_pre_commit_path` | Git template directory | `/Users/me/.pre-commit` |
 | `packages_pre_commit_hooks_path` | Where the hook and configs are installed | `/Users/me/.pre-commit/hooks` |
 | `packages_pre_commit_configs` | Configs the hook copies into a repository | Definition example in [defaults/main.yml](defaults/main.yml) |
-
-### Claude Code
-
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `packages_claude_config_path` | Claude Code config directory, i.e. `CLAUDE_CONFIG_DIR` | `/Users/me/.claude` |
-| `packages_claude_settings` | Deep-merged over `settings.json`. Empty leaves the file alone | Definition example in [defaults/main.yml](defaults/main.yml) |
-| `packages_claude_md` | Written verbatim to `CLAUDE.md`. Empty leaves the file alone | `''` |
-| `packages_claude_statusline_install` | Deploy `statusline.sh` into the config directory | `false` |
-| `packages_claude_json_path` | Claude Code's state file, `.claude.json` | `/Users/me/.claude.json` |
-| `packages_claude_mcp_servers` | User-scope MCP servers merged into the state file. Not logged | Definition example in [defaults/main.yml](defaults/main.yml) |
 
 `packages_ssh_hosts` renders one stanza per entry, in order. An option whose
 value is a list is emitted once per element, which is what `IdentityFile`
@@ -105,42 +94,24 @@ Quote `yes` and `no` — unquoted, YAML turns them into booleans and ssh rejects
   upstream as of that moment; `update: false` then leaves the checkout alone,
   so later runs change nothing unless `packages_brew_upgrade` is set.
 - **Configuration files are overwritten, not merged.** `~/.vimrc`,
-  `~/.config/nano/nanorc`, the VS Code `settings.json` and
-  `~/.docker/config.json` are templated with `force: true` every run. Local
-  edits are lost. `~/.ssh/config` is the exception: it is managed with
-  `blockinfile`, so only the delimited block is replaced.
-- **Claude Code's `settings.json` is merged, not overwritten.** Claude Code
-  rewrites that file itself, so `packages_claude_settings` is deep-merged over
-  whatever is there: keys it does not name survive, keys it names win, and a
-  list it names replaces the existing list rather than extending it -- so a
-  managed `permissions.allow` discards every permission approved
-  interactively since the last run. Removing a key from the variable does not
-  remove it from the file.
-- **MCP servers are written into Claude Code's state file.** `.claude.json`
-  holds the OAuth account, caches and per-project history, and Claude Code
-  rewrites it constantly, so each server in `packages_claude_mcp_servers`
-  replaces the server of that name whole and nothing else in the file is
-  touched. Unlisted servers are kept, and removing one from the variable does
-  not remove it. Apply with no Claude Code session running, or a live session
-  may save its in-memory copy over the change. The file is set to `0600`, and
-  the tasks are `no_log: true`, so a failure will not show its content. It
-  sits at `~/.claude.json` by default but inside `CLAUDE_CONFIG_DIR` when that
-  is set — keep `packages_claude_json_path` in step.
-- **The Claude Code status line reads `CLAUDE_CONFIG_DIR`.** `statusline.sh`
-  looks for `settings.json` under `$CLAUDE_CONFIG_DIR`, falling back to
-  `~/.claude`. Deploying it does not enable it; set `statusLine` in
-  `packages_claude_settings`.
-- **`~/.docker/config.json` is written from `packages_docker_config`
-  verbatim.** Whatever you put there is the file, including `auths`. Supply it
-  from a vault, and note the task is `no_log: true`, so a failure will not show
-  you the rendered content.
+  `~/.config/nano/nanorc` and the VS Code `settings.json` are templated with
+  `force: true` every run. Local edits are lost. `~/.ssh/config` is managed
+  with `blockinfile`, so only the delimited block is replaced, and
+  `~/.docker/config.json` is merged (below).
+- **`packages_docker_config` is deep-merged over `~/.docker/config.json`.**
+  Docker Desktop keeps its own keys there (`currentContext`, `features`,
+  `plugins`), so they survive; keys you name win and a list you name replaces
+  the existing one. The parsed content is compared, so Docker Desktop
+  rewriting the file in its own format is not a change. The file is set to
+  `0600` because `auths` carries credentials — supply it from a vault. Every
+  task touching it is `no_log: true`, so a failure will not show its content.
 - **The iTerm2 profile is written once.** It is skipped if a profile named
   after the user already exists, because the GUID is generated at creation
   time; changing the template afterwards has no effect until you delete the
   file.
 - **The editor blocks are conditional on casks.** The VS Code block runs only
   when `vscodium` or `visual-studio-code` is in `packages_brew_casks`, iTerm2
-  only when `iterm2` is, Docker only when `docker` is, and nano only when
+  only when `iterm2` is, Docker only when `docker` or `docker-desktop` is, and nano only when
   `nano` is in `packages_brew`. Installing an editor by other means will not
   get it configured.
 - **Extensions are installed for whichever editor the cask list names**, and

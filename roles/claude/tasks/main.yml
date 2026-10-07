@@ -1,0 +1,21 @@
+---
+
+- name: detect
+  ansible.builtin.include_tasks:
+    file: detect.yml
+
+- name: install
+  ansible.builtin.include_tasks:
+    file: install.yml
+  when:
+    - claude_install
+    - claude_install_needed | bool
+
+- name: config
+  ansible.builtin.include_tasks:
+    file: config.yml
+  when: >-
+    claude_settings | length > 0
+    or claude_md | length > 0
+    or claude_statusline_install
+    or claude_mcp_servers | length > 0

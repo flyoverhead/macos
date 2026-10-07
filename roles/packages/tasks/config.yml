@@ -209,7 +209,7 @@
 - name: config | docker
   become: true
   when:
-    - '"docker" in packages_brew_casks'
+    - packages_brew_casks | intersect(['docker', 'docker-desktop']) | length > 0
     - packages_docker_config | length > 0
   block:
 
@@ -221,23 +221,48 @@
         group: '{{ packages_user_group }}'
         mode: '0755'
 
-    # `no_log` because `packages_docker_config` carries registry credentials
-    # under `auths`, and a diff would otherwise print them.
+    - name: config | check docker config
+      ansible.builtin.stat:
+        path: '{{ packages_user_home }}/.docker/config.json'
+      register: packages_docker_config_file
+
+    # `no_log` on everything that touches the file: `auths` carries registry
+    # credentials.
+    - name: config | read docker config
+      ansible.builtin.slurp:
+        src: '{{ packages_user_home }}/.docker/config.json'
+      register: packages_docker_config_current
+      when:
+        - packages_docker_config_file.stat.exists
+      no_log: true
+
+    - name: config | merge docker config
+      ansible.builtin.set_fact:
+        packages_docker_config_existing: >-
+          {{ packages_docker_config_current.content | b64decode | from_json
+          if packages_docker_config_file.stat.exists else {} }}
+        packages_docker_config_merged: >-
+          {{ (packages_docker_config_current.content | b64decode | from_json
+          if packages_docker_config_file.stat.exists else {})
+          | combine(packages_docker_config, recursive=True) }}
+      no_log: true
+
+    # Docker Desktop rewrites the file in its own format, so the parsed content
+    # is compared rather than the bytes.
     - name: config | create docker config
-      ansible.builtin.template:
-        src: docker.j2
+      ansible.builtin.copy:
+        content: "{{ packages_docker_config_merged | to_nice_json(indent=2, sort_keys=False) }}\n"
         dest: '{{ packages_user_home }}/.docker/config.json'
         owner: '{{ packages_user_name }}'
         group: '{{ packages_user_group }}'
         mode: '0600'
-        force: true
+      when:
+        - packages_docker_config_merged != packages_docker_config_existing
       no_log: true
 
-- name: config | claude code
-  ansible.builtin.include_tasks:
-    file: claude.yml
-  when: >-
-    packages_claude_settings | length > 0
-    or packages_claude_md | length > 0
-    or packages_claude_statusline_install
-    or packages_claude_mcp_servers | length > 0
+    - name: config | docker config permissions
+      ansible.builtin.file:
+        path: '{{ packages_user_home }}/.docker/config.json'
+        owner: '{{ packages_user_name }}'
+        group: '{{ packages_user_group }}'
+        mode: '0600'

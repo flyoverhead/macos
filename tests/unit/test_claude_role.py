@@ -1,12 +1,12 @@
-"""The packages role's Claude Code tasks, asserted as data."""
+"""The claude role, asserted as data."""
 
 import pathlib
 
 import yaml
 
-ROLE = pathlib.Path(__file__).resolve().parents[2] / "roles/packages"
+ROLE = pathlib.Path(__file__).resolve().parents[2] / "roles/claude"
 
-CLAUDE = yaml.safe_load((ROLE / "tasks/claude.yml").read_text(encoding="utf-8"))
+CLAUDE = yaml.safe_load((ROLE / "tasks/config.yml").read_text(encoding="utf-8"))
 DEFAULTS = yaml.safe_load((ROLE / "defaults/main.yml").read_text(encoding="utf-8"))
 
 
@@ -22,8 +22,8 @@ def _find(tasks, needle):
 
 def test_settings_are_merged_over_the_existing_file():
     content = _find(CLAUDE, "create settings")["ansible.builtin.copy"]["content"]
-    assert "packages_claude_settings_current.content" in content
-    assert "combine(packages_claude_settings, recursive=True)" in content
+    assert "claude_settings_current.content" in content
+    assert "combine(claude_settings, recursive=True)" in content
 
 
 def test_settings_keep_the_existing_key_order():
@@ -32,24 +32,26 @@ def test_settings_keep_the_existing_key_order():
 
 
 def test_every_file_is_opt_in():
-    assert DEFAULTS["packages_claude_settings"] == {}
-    assert DEFAULTS["packages_claude_md"] == ""
-    assert DEFAULTS["packages_claude_statusline_install"] is False
+    assert DEFAULTS["claude_settings"] == {}
+    assert DEFAULTS["claude_md"] == ""
+    assert DEFAULTS["claude_statusline_install"] is False
 
 
 def test_statusline_is_not_swept_into_the_pre_commit_configs():
-    assert not list((ROLE / "files").rglob("*statusline*"))
+    packages = ROLE.parent / "packages"
+    assert not list((packages / "files").rglob("*statusline*"))
+    assert not (ROLE / "files").exists()
 
 
 def test_statusline_reads_settings_from_the_active_config_dir():
-    script = (ROLE / "templates/claude_statusline.j2").read_text(encoding="utf-8")
+    script = (ROLE / "templates/statusline.j2").read_text(encoding="utf-8")
     assert 'settings_path="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"' in script
     assert ".claude-enterprise" not in script
 
 
 def test_mcp_servers_are_replaced_per_server_not_deep_merged():
     content = _find(CLAUDE, "create mcp servers")["ansible.builtin.copy"]["content"]
-    assert "combine(packages_claude_mcp_servers)" in content
+    assert "combine(claude_mcp_servers)" in content
     assert "recursive" not in content
 
 
@@ -67,4 +69,4 @@ def test_state_file_contents_are_never_logged():
 
 
 def test_mcp_servers_are_opt_in():
-    assert DEFAULTS["packages_claude_mcp_servers"] == {}
+    assert DEFAULTS["claude_mcp_servers"] == {}

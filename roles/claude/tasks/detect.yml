@@ -1,0 +1,29 @@
+---
+
+- name: detect | claude binary
+  ansible.builtin.stat:
+    path: '{{ claude_bin_path }}'
+  register: claude_binary
+
+- name: detect | claude version
+  ansible.builtin.command:
+    cmd: '{{ claude_bin_path }} --version'
+  register: claude_version_output
+  changed_when: false
+  check_mode: false
+  failed_when: false
+  when:
+    - claude_binary.stat.exists
+
+- name: detect | claude installed facts
+  ansible.builtin.set_fact:
+    claude_installed_version: >-
+      {{ claude_version_output.stdout | default('')
+      | regex_search('^[0-9]+[.][0-9]+[.][0-9]+[^ ]*') | default('', true) }}
+
+- name: detect | claude install needed
+  ansible.builtin.set_fact:
+    claude_install_needed: >-
+      {{ claude_installed_version | length == 0
+      or (claude_version is match('^[0-9]+[.][0-9]+[.][0-9]+')
+      and claude_installed_version != claude_version) }}

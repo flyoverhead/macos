@@ -18,6 +18,10 @@ ohmyzsh:
   children:
     workstation:
 
+claude:
+  children:
+    workstation:
+
 dock:
   children:
     workstation:

@@ -24,6 +24,11 @@
       tags:
         - ohmyzsh
 
+    - role: claude
+      when: '"claude" in group_names'
+      tags:
+        - claude
+
     # needs dockutil, and the applications it places, from `packages`
     - role: dock
       when: '"dock" in group_names'
