@@ -15,7 +15,7 @@
     file: config.yml
     apply:
       environment:
-        PATH: '{{ dock_homebrew_bin_path }}:{{ ansible_env.PATH }}'
+        PATH: '{{ dock_homebrew_bin_path }}:{{ ansible_facts.env.PATH }}'
   loop: '{{ dock_items_all | default([]) }}'
   loop_control:
     label: '{{ item.name }}'

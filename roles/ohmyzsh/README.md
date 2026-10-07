@@ -13,8 +13,8 @@ as `ssh-add --apple-load-keychain`.
 | Variable | Description | Example |
 | :--- | :--- | :--- |
 | `ohmyzsh_user_name` | User to install for | `{{ ansible_user }}` |
-| `ohmyzsh_user_group` | That user's primary group | `{{ ansible_user_gid }}` |
-| `ohmyzsh_user_home` | That user's home directory | `{{ ansible_user_dir }}` |
+| `ohmyzsh_user_group` | That user's primary group | `{{ ansible_facts.user_gid }}` |
+| `ohmyzsh_user_home` | That user's home directory | `{{ ansible_facts.user_dir }}` |
 | `ohmyzsh_repo` | Oh My Zsh repository | `https://github.com/ohmyzsh/ohmyzsh.git` |
 | `ohmyzsh_version` | Git ref to clone | `master` |
 | `ohmyzsh_shell` | Login shell to set | `/bin/zsh` |

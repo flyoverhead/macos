@@ -12,8 +12,8 @@ position you give it.
 | `dock_items_add` | Items to place: `name`, `path`, optional `position` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `dock_items_remove` | Items to remove. A plain name, or a mapping with `name` | `[Mail, Maps, TV]` |
 | `dock_user_name` | User whose Dock is managed | `{{ ansible_user }}` |
-| `dock_user_group` | That user's primary group | `{{ ansible_user_gid }}` |
-| `dock_user_home` | That user's home directory | `{{ ansible_user_dir }}` |
+| `dock_user_group` | That user's primary group | `{{ ansible_facts.user_gid }}` |
+| `dock_user_home` | That user's home directory | `{{ ansible_facts.user_dir }}` |
 | `dock_homebrew_bin_path` | Homebrew `bin` directory, where dockutil is found | `/opt/homebrew/bin` |
 | `dock_brew_clear_cache` | Delete the Homebrew download cache after installing dockutil | `false` |
 | `dock_apply_timeout` | Seconds to wait after each change for the Dock to settle | `15` |

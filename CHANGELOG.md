@@ -2,6 +2,22 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 2.0.1
+
+### Fixed
+
+- **No more `INJECT_FACTS_AS_VARS` deprecation warnings.** The `claude`,
+  `dock`, `ohmyzsh` and `packages` defaults, the Homebrew `PATH` in `dock` and
+  `packages`, and the Rosetta check read facts through their injected
+  top-level names (`ansible_user_dir`, `ansible_user_gid`, `ansible_env`,
+  `ansible_architecture`), which ansible-core 2.24 stops providing. They now
+  use `ansible_facts`. `ansible_user` is a connection variable, not a fact,
+  and is unchanged. Resolved values are the same.
+- **`tests/ansible.cfg` used the removed `community.general.yaml` callback**,
+  so `task check` and `task play` stopped before the first task on
+  community.general 12. It now uses the default callback with
+  `callback_result_format = yaml`.
+
 ## 2.0.0
 
 ### Changed

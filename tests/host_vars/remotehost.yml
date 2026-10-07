@@ -9,5 +9,5 @@ ansible_user: '{{ lookup("env", "ANSIBLE_USER", default="admin") }}'
 ansible_password: '{{ lookup("env", "ANSIBLE_PASSWORD", default="admin") }}'
 ansible_become_password: '{{ ansible_password }}'
 
-venv_path: '{{ ansible_user_dir }}/.venv'
-tmp_path: '{{ ansible_user_dir }}/tmp'
+venv_path: '{{ ansible_facts.user_dir }}/.venv'
+tmp_path: '{{ ansible_facts.user_dir }}/tmp'

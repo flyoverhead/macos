@@ -8,4 +8,4 @@
   args:
     creates: /Library/Apple/usr/share/rosetta/rosetta
   when:
-    - ansible_architecture == 'arm64'
+    - ansible_facts.architecture == 'arm64'
