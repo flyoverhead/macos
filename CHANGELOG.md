@@ -2,6 +2,53 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 2.0.0
+
+### Changed
+
+- **Breaking: Claude Code moved out of `packages` into a new `claude` role.**
+  `packages/tasks/claude.yml` and `claude_statusline.j2` are now
+  `claude/tasks/config.yml` and `claude/templates/statusline.j2`, unchanged in
+  behaviour. Every `packages_claude_*` variable is renamed `claude_*`
+  (`claude_config_path`, `claude_settings`, `claude_md`,
+  `claude_statusline_install`, `claude_json_path`, `claude_mcp_servers`), and
+  the user, group and home come from `claude_user_*`. There is no fallback to
+  the old names: rename them and add `flyoverhead.macos.claude` to the play,
+  or the configuration silently stops being applied.
+- **`packages_docker_config` is deep-merged** over `~/.docker/config.json`
+  instead of replacing it, so the keys Docker Desktop keeps there
+  (`currentContext`, `features`, `plugins`) survive. The parsed content is
+  compared, so Docker Desktop's own formatting is not a change. The file is
+  forced to `0600`. `templates/docker.j2` is gone.
+
+### Added
+
+- `claude_install` (default `false`) installs Claude Code with Anthropic's
+  native installer, run as `claude_user_name`. `claude_version` is `stable`,
+  `latest` or an exact version: a channel installs only when Claude Code is
+  missing; an exact version is reinstalled whenever the installed one
+  differs.
+- `tests/unit/test_claude_install.py`, `tests/unit/test_docker_config.py`.
+
+### Fixed
+
+- **The Docker config was never written with the current cask name.** The block
+  ran only when `docker` was in `packages_brew_casks`; Homebrew's cask is now
+  `docker-desktop`, so `packages_docker_config` was silently ignored. Both
+  names now enable it.
+- **`.claude.json` reported `changed` on every run.** The MCP task forced the
+  state file to `0600`, but Claude Code rewrites it atomically at `0644`, so
+  each run flipped the mode back. The file is now `0600` only when the role
+  creates it; an existing file keeps its mode.
+
+### Documentation
+
+- The collection README's Gotchas cover the Claude Code tasks, the pre-commit
+  hook directory and the write-once iTerm2 profile, and are corrected:
+  Homebrew and Oh My Zsh are cloned only on the first run (`update: false`),
+  not "a run reflects upstream"; the Dock waits after each change, not between
+  every item. The version badge read 1.0.0.
+
 ## 1.3.0
 
 ### Added

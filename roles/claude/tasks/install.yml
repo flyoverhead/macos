@@ -1,0 +1,35 @@
+---
+
+- name: install | create tmp directory
+  become: true
+  ansible.builtin.file:
+    path: '{{ claude_tmp_path }}'
+    state: directory
+    owner: '{{ claude_user_name }}'
+    group: '{{ claude_user_group }}'
+    mode: '0755'
+
+- name: install | download installer
+  become: true
+  ansible.builtin.get_url:
+    url: '{{ claude_installer_url }}'
+    dest: '{{ claude_tmp_path }}/claude-install.sh'
+    owner: '{{ claude_user_name }}'
+    group: '{{ claude_user_group }}'
+    mode: '0755'
+    force: true
+
+# The installer refuses to run as root under sudo and installs into `$HOME`,
+# so it runs as the target user.
+- name: install | claude code {{ claude_version }}
+  become: true
+  become_user: '{{ claude_user_name }}'
+  ansible.builtin.command:
+    cmd: bash '{{ claude_tmp_path }}/claude-install.sh' '{{ claude_version }}'
+  changed_when: true
+
+- name: install | remove installer
+  become: true
+  ansible.builtin.file:
+    path: '{{ claude_tmp_path }}/claude-install.sh'
+    state: absent

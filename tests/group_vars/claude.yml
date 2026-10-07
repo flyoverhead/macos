@@ -1,0 +1,6 @@
+---
+
+# Install only, and only when missing; the configuration tasks stay off so a
+# test run never rewrites the settings of the machine it runs on.
+claude_install: true
+claude_version: stable

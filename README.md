@@ -1,13 +1,13 @@
 # `flyoverhead.macos`
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%20%7C%2026-000000?logo=apple&logoColor=white)](#-supported-os)
-[![Roles](https://img.shields.io/badge/roles-4-orange)](#-roles)
+[![Roles](https://img.shields.io/badge/roles-5-orange)](#-roles)
 
 macOS workstation configuration: Homebrew and the software on top of it, a zsh
-login shell, the Dock, and system preferences.
+login shell, Claude Code, the Dock, and system preferences.
 
 These roles configure a Mac you already have. Every list they take defaults to
 empty, so the collection installs nothing until an inventory tells it what to
@@ -49,10 +49,11 @@ Full documentation and usage examples of role `<role>` can be found in
 `roles/<role>/README.md`.
 
 Run `flyoverhead.macos.packages` first. It installs Homebrew, which the other
-three depend on, plus the applications that `dock` places and the font that
-makes the `ohmyzsh` prompt render. `dock` needs `dockutil` and the applications
-themselves, so it goes after `packages`. `osx` is independent and can go
-anywhere.
+others depend on, plus the applications that `dock` places, the font that
+makes the `ohmyzsh` prompt render and the `jq` the `claude` status line needs.
+`dock` needs `dockutil` and the applications themselves, so it goes after
+`packages`. `claude` and `osx` are independent of the rest and can go
+anywhere after `packages`.
 
 ### Example Playbook
 
@@ -63,11 +64,12 @@ anywhere.
   roles:
     - flyoverhead.macos.packages
     - flyoverhead.macos.ohmyzsh
+    - flyoverhead.macos.claude
     - flyoverhead.macos.dock
     - flyoverhead.macos.osx
 ```
 
-A worked configuration for all four roles is in
+A worked configuration for the roles is in
 [tests/group_vars/](tests/group_vars), which is what the test harness runs.
 
 ## 🖥 Supported OS
@@ -87,6 +89,7 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 | :--- | :--- |
 | [`packages`](roles/packages/README.md) | Homebrew, formulae, casks, DMGs, binaries, uv; git, ssh, nano, vim, iTerm2, VS Code and Docker configuration |
 | [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, powerlevel10k, plugins, `.zshrc` |
+| [`claude`](roles/claude/README.md) | Claude Code: native install, `settings.json`, `CLAUDE.md`, status line, MCP servers |
 | [`dock`](roles/dock/README.md) | Dock contents and ordering via dockutil |
 | [`osx`](roles/osx/README.md) | System preferences via the `defaults` database |
 
@@ -107,19 +110,38 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 ## ⚠️ Gotchas
 
 - **Configuration files are replaced, not merged.** `~/.zshrc`, `~/.p10k.zsh`,
-  `~/.vimrc`, `~/.config/nano/nanorc`, the VS Code `settings.json` and
-  `~/.docker/config.json` are rewritten on every run. `.zshrc` is backed up
-  first; the others are not. `~/.ssh/config` is the exception — it is managed
-  with `blockinfile`, so only the delimited block is touched.
-- **`packages_docker_config` becomes `~/.docker/config.json` verbatim**,
-  including any `auths` you put in it. Supply it from a vault. The task is
+  `~/.vimrc`, `~/.config/nano/nanorc`, the VS Code `settings.json` and the
+  pre-commit hook directory are rewritten on every run, as are Claude Code's
+  `CLAUDE.md` and `statusline.sh` when enabled. `.zshrc` is backed up first;
+  the others are not. The exceptions: `~/.ssh/config` is managed with
+  `blockinfile`, so only the delimited block is touched; the iTerm2 profile is
+  written only when it does not exist yet; and the JSON files below are
+  merged.
+- **`claude`: `settings.json` and `.claude.json` are merged, not
+  replaced**, because Claude Code rewrites both at runtime. Keys you name win
+  and keys you drop from the variables stay in the file. **A list you name
+  replaces the existing one**, so a `permissions.allow` in
+  `claude_settings` resets the allow list on every run and drops
+  anything approved interactively since. MCP servers are a read-modify-write
+  of the whole state file: run with no Claude Code session open, or a live
+  session may save its in-memory copy over the change.
+- **`claude` installs with Anthropic's native installer, as the user.** A
+  `stable`/`latest` `claude_version` installs once and leaves updates to Claude
+  Code; an exact version is reinstalled whenever it drifts, so pair it with
+  `DISABLE_AUTOUPDATER`.
+- **`packages_docker_config` is deep-merged over `~/.docker/config.json`**,
+  keeping the keys Docker Desktop writes there, and the file is set to `0600`.
+  It carries `auths`, so supply it from a vault. Those tasks are
   `no_log: true`, as is the `git_config` loop, since a signing key is usually
   set there.
 - **`dock` is slow by design.** Every dockutil write restarts the Dock, and the
-  role waits `dock_apply_timeout` (15s) between items, because a rapid sequence
-  of writes loses changes.
-- **Homebrew is installed from a git branch, not a release.** A run reflects
-  upstream at that moment.
+  role waits `dock_apply_timeout` (15s) after each change, because a rapid
+  sequence of writes loses changes. Items already in place cost nothing.
+- **Homebrew and Oh My Zsh are cloned from a git branch, not a release**
+  (`master` by default), and only on the first run: `update: false` leaves an
+  existing checkout alone. Homebrew itself is updated only when
+  `packages_brew_upgrade` is set; Oh My Zsh by its own auto-updater, which the
+  managed `.zshrc` runs every 3 days, or by `ohmyzsh_force_reinstall`.
 - **Dock labels are localised.** `dock_items_remove` matches what the Dock
   displays, so the English names will not match on a non-English system.
 

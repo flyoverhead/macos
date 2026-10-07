@@ -71,8 +71,9 @@ by default `.zshrc` contains neither.
   `.p10k.zsh` is not backed up. Anything you want to survive belongs in
   `~/.aliases`, which the template sources if present.
 - **The role needs egress to GitHub and to Homebrew.** Oh My Zsh is cloned from
-  `github.com` at a branch, not a release, so a run reflects upstream at that
-  moment.
+  `github.com` at a branch, not a release, so the first run gets upstream as
+  of that moment. An existing checkout is never updated by the role
+  (`update: false`); set `ohmyzsh_force_reinstall` to re-clone it.
 - **The theme renders as boxes without the font.** powerlevel10k needs MesloLGS
   NF, which comes from the `font-meslo-for-powerlevel10k` cask — install it via
   the `packages` role, or the prompt will look broken. Your *terminal* also has

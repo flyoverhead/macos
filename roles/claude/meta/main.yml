@@ -1,0 +1,19 @@
+---
+
+galaxy_info:
+  role_name: claude
+  namespace: flyoverhead
+  author: flyoverhead
+  description: Claude Code installation and configuration for macOS
+  license: GPL-3.0-only
+  min_ansible_version: '2.16'
+  platforms:
+    - name: MacOSX
+      versions:
+        - all
+  galaxy_tags:
+    - ai
+    - claude
+    - macos
+
+dependencies: []

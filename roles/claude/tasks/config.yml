@@ -1,0 +1,104 @@
+---
+
+- name: config | create config directory
+  become: true
+  ansible.builtin.file:
+    path: '{{ claude_config_path }}'
+    state: directory
+    owner: '{{ claude_user_name }}'
+    group: '{{ claude_user_group }}'
+    mode: '0755'
+
+- name: config | settings
+  when:
+    - claude_settings | length > 0
+  block:
+
+    - name: config | check settings
+      ansible.builtin.stat:
+        path: '{{ claude_config_path }}/settings.json'
+      register: claude_settings_file
+
+    - name: config | read settings
+      ansible.builtin.slurp:
+        src: '{{ claude_config_path }}/settings.json'
+      register: claude_settings_current
+      when:
+        - claude_settings_file.stat.exists
+
+    # Claude Code rewrites this file at runtime, so the managed keys are merged
+    # over it rather than replacing it.
+    - name: config | create settings
+      become: true
+      ansible.builtin.copy:
+        content: "{{
+          (claude_settings_current.content | b64decode | from_json
+          if claude_settings_file.stat.exists else {})
+          | combine(claude_settings, recursive=True)
+          | to_nice_json(indent=2, sort_keys=False) }}\n"
+        dest: '{{ claude_config_path }}/settings.json'
+        owner: '{{ claude_user_name }}'
+        group: '{{ claude_user_group }}'
+        mode: '0644'
+
+- name: config | create CLAUDE.md
+  become: true
+  ansible.builtin.copy:
+    content: '{{ claude_md }}'
+    dest: '{{ claude_config_path }}/CLAUDE.md'
+    owner: '{{ claude_user_name }}'
+    group: '{{ claude_user_group }}'
+    mode: '0644'
+  when:
+    - claude_md | length > 0
+
+- name: config | create statusline script
+  become: true
+  ansible.builtin.template:
+    src: statusline.j2
+    dest: '{{ claude_config_path }}/statusline.sh'
+    owner: '{{ claude_user_name }}'
+    group: '{{ claude_user_group }}'
+    mode: '0755'
+  when:
+    - claude_statusline_install
+
+- name: config | mcp servers
+  when:
+    - claude_mcp_servers | length > 0
+  block:
+
+    - name: config | check state file
+      ansible.builtin.stat:
+        path: '{{ claude_json_path }}'
+      register: claude_json_file
+
+    - name: config | read state file
+      ansible.builtin.slurp:
+        src: '{{ claude_json_path }}'
+      register: claude_json_current
+      when:
+        - claude_json_file.stat.exists
+      no_log: true
+
+    - name: config | parse state file
+      ansible.builtin.set_fact:
+        claude_json: >-
+          {{ claude_json_current.content | b64decode | from_json
+          if claude_json_file.stat.exists else {} }}
+      no_log: true
+
+    # `no_log` because the file holds the OAuth account and the MCP tokens.
+    - name: config | create mcp servers
+      become: true
+      ansible.builtin.copy:
+        content: "{{
+          claude_json
+          | combine({'mcpServers': claude_json.mcpServers | default({})
+          | combine(claude_mcp_servers)})
+          | to_nice_json(indent=2, sort_keys=False, ensure_ascii=False) }}"
+        dest: '{{ claude_json_path }}'
+        owner: '{{ claude_user_name }}'
+        group: '{{ claude_user_group }}'
+        mode: "{{ '0600' if not claude_json_file.stat.exists else omit }}"
+      no_log: true

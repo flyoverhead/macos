@@ -110,38 +110,3 @@ packages_ssh_hosts: []
   #   options:
   #     User: example
   #     Port: 22
-
-# Claude Code configuration directory, i.e. `CLAUDE_CONFIG_DIR`.
-packages_claude_config_path: '{{ packages_user_home }}/.claude'
-
-# Deep-merged over the existing `settings.json`, so keys Claude Code writes at
-# runtime survive and managed keys win; a managed list replaces the existing
-# one. Empty means `settings.json` is left alone.
-packages_claude_settings: {}
-  # model: opus
-  # permissions:
-  #   allow:
-  #     - Bash(git:*)
-  # statusLine:
-  #   type: command
-  #   command: bash "$HOME/.claude/statusline.sh"
-
-# Written verbatim to `CLAUDE.md`. Empty means the file is left alone.
-packages_claude_md: ''
-
-# Deploy `statusline.sh`; point `statusLine.command` at it to use it.
-packages_claude_statusline_install: false
-
-# Claude Code's state file: `~/.claude.json`, or `.claude.json` inside
-# `CLAUDE_CONFIG_DIR` when that is set.
-packages_claude_json_path: '{{ packages_user_home }}/.claude.json'
-
-# User-scope MCP servers, deep-merged into `mcpServers` in the state file.
-# Unlisted servers survive. Empty means the state file is left alone.
-packages_claude_mcp_servers: {}
-  # gitlab:
-  #   type: stdio
-  #   command: glab
-  #   args:
-  #     - mcp
-  #     - serve
