@@ -6,7 +6,10 @@ virtualenv. Afterwards it configures git, ssh, nano, vim, iTerm2, VS Code /
 VSCodium and Docker, and deploys a pre-commit hook with a set of linter
 configurations. Claude Code lives in its own role, `flyoverhead.macos.claude`.
 
-Every list defaults to empty, so the role installs nothing until told to.
+Every package list defaults to empty, so the role installs nothing until told
+to. The exception is `packages_pre_commit_dependencies`, which the hook
+cannot run without; it is installed only while `packages_pre_commit_install`
+is true.
 
 ## Role variables
 
@@ -58,6 +61,7 @@ Every list defaults to empty, so the role installs nothing until told to.
 | `packages_pre_commit_install` | Deploy the pre-commit hook and configs | `true` |
 | `packages_pre_commit_path` | Git template directory | `/Users/me/.pre-commit` |
 | `packages_pre_commit_hooks_path` | Where the hook and configs are installed | `/Users/me/.pre-commit/hooks` |
+| `packages_pre_commit_dependencies` | Formulae installed before the hook: what it runs | `[gitleaks, pre-commit]` |
 | `packages_pre_commit_configs` | Configs the hook copies into a repository | Definition example in [defaults/main.yml](defaults/main.yml) |
 
 `packages_ssh_hosts` renders one stanza per entry, in order. An option whose

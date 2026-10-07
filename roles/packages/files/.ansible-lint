@@ -6,15 +6,22 @@
 profile: production # min, basic, moderate, safety, shared, production
 
 exclude_paths:
+  - .ansible
   - .cache*
   - .git*
-  - data
+  - .venv
+  - ansible/files/alert_rules/* # ignore HAProxy rules
+  - files/alert_rules/* # ignore HAProxy rules
+  - k8s/network_inventory.yml # ignore script inventory
+  - molecule # it is temporal decision while not released our version of openstack driver
+  - pipelines/*
 
 skip_list:
   - fqcn[action] # ignore FQCN for module actions
   - fqcn[action-core] # ignore FQCN from the ansible.legacy or ansible.builtin collection
   - name[casing] # ignore tasks first capital letter naming
   - role-name # ignore roles meta file
+  - yaml[quoted-strings] # ignore string quoting requirements
 
 mock_roles:
   - packages
