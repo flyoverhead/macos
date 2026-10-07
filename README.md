@@ -1,6 +1,6 @@
 # `flyoverhead.macos`
 
-[![Version](https://img.shields.io/badge/version-2.1.1-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-2.2.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%20%7C%2026-000000?logo=apple&logoColor=white)](#-supported-os)

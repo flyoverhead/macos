@@ -32,6 +32,16 @@
     - packages_pre_commit_install
   block:
 
+    - name: config | pre-commit dependencies
+      become: true
+      become_user: '{{ packages_user_name }}'
+      community.general.homebrew:
+        name: '{{ packages_pre_commit_dependencies }}'
+        path: '{{ packages_homebrew_bin_path }}'
+        state: present
+      when:
+        - packages_pre_commit_dependencies | length > 0
+
     - name: config | create pre-commit directory
       ansible.builtin.file:
         path: '{{ packages_pre_commit_hooks_path }}'

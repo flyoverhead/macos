@@ -3,10 +3,21 @@
 # https://yamllint.readthedocs.io/en/stable/configuration.html#default-configuration
 
 ignore:
+  - .ansible
   - .cache*
   - .git*
   - .gitlab-ci.yml
+  - .venv
+  - ansible/files/alert_rules/*
+  - ansible/group_vars/vendmaster.yml
   - component.yml
+  - data
+  - files/alert_rules/*
+  - group_vars/debian.yml
+  - k8s/network_inventory.yml
+  - molecule
+  - pipelines/*
+  - templates/scripts/*
 
 yaml-files: # list of files to be checked
   - '*.yaml'
@@ -20,14 +31,6 @@ rules:
     forbid: non-empty # forbid the use of all flow mappings except for empty ones
     min-spaces-inside: 0
     max-spaces-inside: 1
-
-  # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.brackets
-  brackets: # control the use of flow sequences or the number of spaces inside brackets ([ and ])
-    forbid: non-empty # forbid the use of all flow sequences except for empty ones
-
-  # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.document_start
-  document-start: # require or forbid the use of document start marker (---)
-    present: true # the document start marker is required
 
   # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.empty_lines
   empty-lines: # set a maximal number of allowed consecutive blank lines
@@ -60,10 +63,11 @@ rules:
 
   # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.quoted_strings
   quoted-strings: # forbid any string values that are not quoted, or prevent quoted strings without needing it
-    quote-type: single # allowed quotes
+    quote-type: any # allowed quotes
     required: only-when-needed # only allowed when really needed
     extra-allowed: # PCRE regexes to allow quoted string values
-      - ssh-rsa.+ # allow quoted SSH public keys with RSA (string length > 150)
+      - ^ssh-rsa.+ # allow quoted SSH public keys with RSA (string length > 150)
+      - ^0.+ # allow quoated numbers starting with 0
     allow-quoted-quotes: true # allows using disallowed quotes for strings with allowed quotes inside
 
   # https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.trailing_spaces

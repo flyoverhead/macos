@@ -94,6 +94,12 @@ packages_pre_commit_path: '{{ packages_user_home }}/.pre-commit'
 packages_pre_commit_hooks_path: '{{ packages_pre_commit_path }}/hooks'
 packages_pre_commit_install: true
 
+# Homebrew formulae the deployed hook calls: the `pre-commit` it runs and the
+# `gitleaks` binary behind the `gitleaks-system` hook.
+packages_pre_commit_dependencies:
+  - gitleaks
+  - pre-commit
+
 # Configs the deployed `pre-commit` wrapper drops into a repository that does
 # not already carry them. `gitignore` is handled separately: it ships without
 # the leading dot and is renamed on copy.

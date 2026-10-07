@@ -2,6 +2,27 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 2.2.0
+
+### Added
+
+- **`gitleaks` in the distributed pre-commit config.** The `gitleaks-system`
+  hook (v8.30.1) scans staged changes with the Homebrew binary, the same check
+  the inventory repo runs before a push. `pass_filenames: false` is set because
+  upstream's hook definition omits it and `gitleaks git` takes one path only.
+- `packages_pre_commit_dependencies` (default `[gitleaks, pre-commit]`),
+  installed through Homebrew while `packages_pre_commit_install` is true. The
+  hook used to assume both were already on `PATH`.
+
+### Changed
+
+- **The pre-commit payload in `roles/packages/files/` is the current org
+  reference.** It was the 2024 set: no flux hook, no `--allow-multiple-documents`
+  or `--maxkb`, one tflint hook, and a `.yamllint` that forced single quotes,
+  forbade flow sequences and required `---`. `.ansible-lint` now skips
+  `yaml[quoted-strings]`; `gitignore` gains `.ansible` and the terraform plan
+  files.
+
 ## 2.1.1
 
 ### Fixed
