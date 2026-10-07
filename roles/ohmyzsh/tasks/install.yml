@@ -44,11 +44,11 @@
   when:
     - ohmyzsh_install_plugins | length > 0
 
-- name: install | powerlevel10k theme
+- name: install | starship
   become: true
   become_user: '{{ ohmyzsh_user_name }}'
   community.general.homebrew:
-    name: '{{ ohmyzsh_theme_package }}'
+    name: starship
     path: '{{ ohmyzsh_homebrew_bin_path }}'
     state: present
 

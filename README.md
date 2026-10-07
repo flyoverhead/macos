@@ -1,6 +1,6 @@
 # `flyoverhead.macos`
 
-[![Version](https://img.shields.io/badge/version-2.2.0-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-3.0.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%20%7C%2026-000000?logo=apple&logoColor=white)](#-supported-os)
@@ -88,7 +88,7 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 | Name | Description |
 | :--- | :--- |
 | [`packages`](roles/packages/README.md) | Homebrew, formulae, casks, DMGs, binaries, uv; git, ssh, nano, vim, iTerm2, VS Code and Docker configuration |
-| [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, powerlevel10k, plugins, `.zshrc` |
+| [`ohmyzsh`](roles/ohmyzsh/README.md) | Oh My Zsh, starship prompt, plugins, `.zshrc` |
 | [`claude`](roles/claude/README.md) | Claude Code: native install, `settings.json`, `CLAUDE.md`, status line, MCP servers |
 | [`dock`](roles/dock/README.md) | Dock contents and ordering via dockutil |
 | [`osx`](roles/osx/README.md) | System preferences via the `defaults` database |
@@ -109,11 +109,11 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 
 ## ⚠️ Gotchas
 
-- **Configuration files are replaced, not merged.** `~/.zshrc`, `~/.p10k.zsh`,
+- **Configuration files are replaced, not merged.** `~/.zshrc`, `~/.config/starship.toml`,
   `~/.vimrc`, `~/.config/nano/nanorc` and the
   pre-commit hook directory are rewritten on every run, as are Claude Code's
-  `CLAUDE.md` and `statusline.sh` when enabled. `.zshrc` is backed up first;
-  the others are not. The exceptions: `~/.ssh/config` is managed with
+  `CLAUDE.md` and `statusline.sh` when enabled. `.zshrc` and `starship.toml`
+  are backed up first; the others are not. The exceptions: `~/.ssh/config` is managed with
   `blockinfile`, so only the delimited block is touched; the iTerm2 profile is
   written only when it does not exist yet; and the JSON files below are
   merged.
@@ -179,6 +179,6 @@ GPL-3.0-only. See [LICENSE](LICENSE).
 
 - [Homebrew](https://brew.sh/) — macOS package manager
 - [Oh My Zsh](https://ohmyz.sh/) — zsh framework
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k) — zsh theme
+- [Starship](https://starship.rs/) — shell prompt
 - [dockutil](https://github.com/kcrawford/dockutil) — Dock management
 - [Tart](https://tart.run/) — macOS virtualization
