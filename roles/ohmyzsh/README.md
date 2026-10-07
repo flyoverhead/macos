@@ -96,7 +96,8 @@ by default `.zshrc` contains neither.
 - **Plugins are sourced by absolute path**, from
   `ohmyzsh_homebrew_share_path`. Each `source` line is guarded by a file test,
   so a plugin whose formula lays its files out differently is skipped silently
-  rather than breaking the shell.
+  rather than breaking the shell. They are sourced in list order, and
+  `zsh-history-substring-search` has to follow `zsh-syntax-highlighting`.
 - **Completion directories must be on `$fpath` before `compinit`.** Oh My Zsh
   runs `compinit` itself, before sourcing plugins, so anything added afterwards
   is never registered and fails with `command not found` at completion time.
