@@ -1,8 +1,8 @@
 ---
 
 claude_user_name: '{{ ansible_user }}'
-claude_user_group: '{{ ansible_user_gid }}'
-claude_user_home: '{{ ansible_user_dir }}'
+claude_user_group: '{{ ansible_facts.user_gid }}'
+claude_user_home: '{{ ansible_facts.user_dir }}'
 
 # Install Claude Code with Anthropic's native installer when it is missing.
 claude_install: false

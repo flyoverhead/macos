@@ -185,7 +185,7 @@
       loop_control:
         loop_var: extension
       environment:
-        PATH: '{{ packages_homebrew_bin_path }}:{{ ansible_env.PATH }}'
+        PATH: '{{ packages_homebrew_bin_path }}:{{ ansible_facts.env.PATH }}'
 
     - name: config | create vscode config path
       become: true

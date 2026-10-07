@@ -9,8 +9,8 @@ user-scope MCP servers. Every part is opt-in.
 | Variable | Description | Example |
 | :--- | :--- | :--- |
 | `claude_user_name` | User Claude Code is installed and configured for | `{{ ansible_user }}` |
-| `claude_user_group` | That user's group | `{{ ansible_user_gid }}` |
-| `claude_user_home` | That user's home | `{{ ansible_user_dir }}` |
+| `claude_user_group` | That user's group | `{{ ansible_facts.user_gid }}` |
+| `claude_user_home` | That user's home | `{{ ansible_facts.user_dir }}` |
 | `claude_install` | Run the native installer when Claude Code is missing or off its pin | `false` |
 | `claude_version` | `stable`, `latest` or an exact version | `stable` |
 | `claude_installer_url` | Installer script | `https://claude.ai/install.sh` |

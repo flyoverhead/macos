@@ -15,8 +15,8 @@ Every list defaults to empty, so the role installs nothing until told to.
 | Variable | Description | Example |
 | :--- | :--- | :--- |
 | `packages_user_name` | User to install and configure for | `{{ ansible_user }}` |
-| `packages_user_group` | That user's primary group | `{{ ansible_user_gid }}` |
-| `packages_user_home` | That user's home directory | `{{ ansible_user_dir }}` |
+| `packages_user_group` | That user's primary group | `{{ ansible_facts.user_gid }}` |
+| `packages_user_home` | That user's home directory | `{{ ansible_facts.user_dir }}` |
 | `packages_tmp_path` | Scratch directory for DMG and archive downloads | `/Users/me/tmp` |
 | `packages_venv_path` | Virtualenv `packages_pip` is installed into, created with `uv venv` | `/Users/me/.venv` |
 | `packages_binary_path` | Where archive binaries are installed | `/usr/local/bin` |

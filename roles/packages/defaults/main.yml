@@ -1,8 +1,8 @@
 ---
 
 packages_user_name: '{{ ansible_user }}'
-packages_user_group: '{{ ansible_user_gid }}'
-packages_user_home: '{{ ansible_user_dir }}'
+packages_user_group: '{{ ansible_facts.user_gid }}'
+packages_user_home: '{{ ansible_facts.user_dir }}'
 
 packages_tmp_path: '{{ packages_user_home }}/tmp'
 packages_venv_path: '{{ packages_user_home }}/.venv'

@@ -10,8 +10,8 @@ dock_items_remove: []
   # - TV
 
 dock_user_name: '{{ ansible_user }}'
-dock_user_group: '{{ ansible_user_gid }}'
-dock_user_home: '{{ ansible_user_dir }}'
+dock_user_group: '{{ ansible_facts.user_gid }}'
+dock_user_home: '{{ ansible_facts.user_dir }}'
 
 dock_homebrew_bin_path: /opt/homebrew/bin
 
