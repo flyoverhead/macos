@@ -36,6 +36,10 @@ All notable changes to `flyoverhead.macos`.
   ran only when `docker` was in `packages_brew_casks`; Homebrew's cask is now
   `docker-desktop`, so `packages_docker_config` was silently ignored. Both
   names now enable it.
+- **`.claude.json` reported `changed` on every run.** The MCP task forced the
+  state file to `0600`, but Claude Code rewrites it atomically at `0644`, so
+  each run flipped the mode back. The file is now `0600` only when the role
+  creates it; an existing file keeps its mode.
 
 ### Documentation
 

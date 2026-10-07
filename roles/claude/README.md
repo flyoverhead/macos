@@ -51,14 +51,15 @@ user-scope MCP servers. Every part is opt-in.
   remove it from the file.
 - **MCP servers are written into Claude Code's state file.** `.claude.json`
   holds the OAuth account, caches and per-project history, and Claude Code
-  rewrites it constantly, so each server in `claude_mcp_servers`
-  replaces the server of that name whole and nothing else in the file is
-  touched. Unlisted servers are kept, and removing one from the variable does
-  not remove it. Apply with no Claude Code session running, or a live session
-  may save its in-memory copy over the change. The file is set to `0600`, and
-  the tasks are `no_log: true`, so a failure will not show its content. It
-  sits at `~/.claude.json` by default but inside `CLAUDE_CONFIG_DIR` when that
-  is set — keep `claude_json_path` in step.
+  rewrites it constantly, so each server in `claude_mcp_servers` replaces the
+  server of that name whole and nothing else in the file is touched. Unlisted
+  servers are kept, and removing one from the variable does not remove it. Apply
+  with no Claude Code session running, or a live session may save its in-memory
+  copy over the change. The file is created `0600`; an existing file keeps the
+  mode Claude Code gives it, since Claude Code rewrites it at `0644` and forcing
+  it back would report a change on every run. The tasks are `no_log: true`, so a
+  failure will not show its content. It sits at `~/.claude.json` by default but
+  inside `CLAUDE_CONFIG_DIR` when that is set — keep `claude_json_path` in step.
 - **The Claude Code status line reads `CLAUDE_CONFIG_DIR`.** `statusline.sh`
   looks for `settings.json` under `$CLAUDE_CONFIG_DIR`, falling back to
   `~/.claude`. Deploying it does not enable it; set `statusLine` in

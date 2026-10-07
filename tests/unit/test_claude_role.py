@@ -65,7 +65,11 @@ def test_state_file_keeps_its_format():
 def test_state_file_contents_are_never_logged():
     for needle in ("read state file", "parse state file", "create mcp servers"):
         assert _find(CLAUDE, needle)["no_log"] is True, needle
-    assert _find(CLAUDE, "create mcp servers")["ansible.builtin.copy"]["mode"] == "0600"
+
+
+def test_state_file_mode_is_left_to_claude_code():
+    mode = _find(CLAUDE, "create mcp servers")["ansible.builtin.copy"]["mode"]
+    assert mode == "{{ '0600' if not claude_json_file.stat.exists else omit }}"
 
 
 def test_mcp_servers_are_opt_in():
