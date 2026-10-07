@@ -196,15 +196,41 @@
         group: '{{ packages_user_group }}'
         mode: '0755'
 
+    - name: config | check vscode config
+      ansible.builtin.stat:
+        path: '{{ packages_vscode_config_path }}/settings.json'
+      register: packages_vscode_config_file
+
+    - name: config | read vscode config
+      ansible.builtin.slurp:
+        src: '{{ packages_vscode_config_path }}/settings.json'
+      register: packages_vscode_config_current
+      when:
+        - packages_vscode_config_file.stat.exists
+
+    # The editor writes settings changed in its UI to this file, so the managed
+    # keys are merged over it rather than replacing it.
+    - name: config | merge vscode config
+      ansible.builtin.set_fact:
+        packages_vscode_config_existing: >-
+          {{ packages_vscode_config_current.content | b64decode | from_json
+          if packages_vscode_config_file.stat.exists else {} }}
+        packages_vscode_config_merged: >-
+          {{ (packages_vscode_config_current.content | b64decode | from_json
+          if packages_vscode_config_file.stat.exists else {})
+          | combine(lookup('ansible.builtin.template', 'vscode.j2') | from_json, recursive=True)
+          | combine(packages_vscode_settings, recursive=True) }}
+
     - name: config | create vscode config
       become: true
-      ansible.builtin.template:
-        src: vscode.j2
+      ansible.builtin.copy:
+        content: "{{ packages_vscode_config_merged | to_nice_json(indent=2, sort_keys=False) }}\n"
         dest: '{{ packages_vscode_config_path }}/settings.json'
         owner: '{{ packages_user_name }}'
         group: '{{ packages_user_group }}'
         mode: '0644'
-        force: true
+      when:
+        - packages_vscode_config_merged != packages_vscode_config_existing
 
 - name: config | docker
   become: true

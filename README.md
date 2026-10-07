@@ -1,6 +1,6 @@
 # `flyoverhead.macos`
 
-[![Version](https://img.shields.io/badge/version-2.0.1-blue)](galaxy.yml)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue)](galaxy.yml)
 [![ansible-core](https://img.shields.io/badge/ansible--core-%E2%89%A52.16-black?logo=ansible&logoColor=white)](https://docs.ansible.com/ansible-core/devel/index.html)
 [![License](https://img.shields.io/badge/license-GPL--3.0--only-green)](https://www.gnu.org/licenses/gpl-3.0)
 [![Platform](https://img.shields.io/badge/platform-macOS%2015%20%7C%2026-000000?logo=apple&logoColor=white)](#-supported-os)
@@ -110,7 +110,7 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
 ## ⚠️ Gotchas
 
 - **Configuration files are replaced, not merged.** `~/.zshrc`, `~/.p10k.zsh`,
-  `~/.vimrc`, `~/.config/nano/nanorc`, the VS Code `settings.json` and the
+  `~/.vimrc`, `~/.config/nano/nanorc` and the
   pre-commit hook directory are rewritten on every run, as are Claude Code's
   `CLAUDE.md` and `statusline.sh` when enabled. `.zshrc` is backed up first;
   the others are not. The exceptions: `~/.ssh/config` is managed with
@@ -134,6 +134,9 @@ which is the Apple Silicon prefix; an Intel Mac needs it set to
   It carries `auths`, so supply it from a vault. Those tasks are
   `no_log: true`, as is the `git_config` loop, since a signing key is usually
   set there.
+- **The VS Code `settings.json` is deep-merged**: the editor's file, then the
+  role's base settings, then `packages_vscode_settings`. Settings changed in
+  the editor survive unless named; a file with comments fails to parse.
 - **`dock` is slow by design.** Every dockutil write restarts the Dock, and the
   role waits `dock_apply_timeout` (15s) after each change, because a rapid
   sequence of writes loses changes. Items already in place cost nothing.
