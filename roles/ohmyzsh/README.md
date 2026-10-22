@@ -19,7 +19,7 @@ as `ssh-add --apple-load-keychain`.
 | `ohmyzsh_repo` | Oh My Zsh repository | `https://github.com/ohmyzsh/ohmyzsh.git` |
 | `ohmyzsh_version` | Git ref to clone | `master` |
 | `ohmyzsh_shell` | Login shell to set | `/bin/zsh` |
-| `ohmyzsh_dependencies` | Formulae installed first | `[curl, fzf, git, zsh]` |
+| `ohmyzsh_dependencies` | Formulae installed first | `[curl, git, zsh]` |
 | `ohmyzsh_install_plugins` | Plugin formulae to install and source: `name`, `source` | Definition example in [defaults/main.yml](defaults/main.yml) |
 | `ohmyzsh_plugins` | Plugins written into the `plugins=(...)` line | `[git, pip, python]` |
 | `ohmyzsh_starship_settings` | The whole starship config as a mapping, rendered to TOML | Definition example in [defaults/main.yml](defaults/main.yml) |

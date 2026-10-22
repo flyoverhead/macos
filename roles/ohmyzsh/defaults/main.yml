@@ -11,7 +11,6 @@ ohmyzsh_shell: /bin/zsh
 
 ohmyzsh_dependencies:
   - curl
-  - fzf
   - git
   - zsh
 

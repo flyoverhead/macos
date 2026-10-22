@@ -2,6 +2,18 @@
 
 All notable changes to `flyoverhead.macos`.
 
+## 3.0.2
+
+### Fixed
+
+- **`.zshrc` sourced `~/.fzf.zsh`, which nothing creates.** The `fzf` formula
+  does not write that file; only its `install` script does, and the role never
+  ran it, so fzf was installed but never loaded. The line is removed from the
+  template and `fzf` from the default `ohmyzsh_dependencies`. An upgrade leaves
+  an installed `fzf` formula in place.
+- `/usr/local/sbin` is dropped from `$PATH`: it does not exist on Apple
+  silicon Homebrew installs.
+
 ## 3.0.1
 
 ### Fixed
