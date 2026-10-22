@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 # Custom $PATH with extra locations.
-export PATH={{ ohmyzsh_venv_path }}/bin:{{ ohmyzsh_homebrew_bin_path }}:/usr/local/bin:/usr/local/sbin:$HOME/bin:$PATH
+export PATH={{ ohmyzsh_venv_path }}/bin:{{ ohmyzsh_homebrew_bin_path }}:/usr/local/bin:$HOME/bin:$PATH
 
 # Export oh-my-zsh installation path.
 export ZSH="$HOME/.oh-my-zsh"
@@ -85,8 +85,6 @@ if [ -f ~/.aliases ]; then
   source ~/.aliases
 fi
 
-# Source fzf.
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 {% if ohmyzsh_task_completion %}
 

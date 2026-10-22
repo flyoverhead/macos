@@ -2,7 +2,7 @@
 
 namespace: flyoverhead
 name: macos
-version: 3.0.1
+version: 3.0.2
 readme: README.md
 authors:
   - flyoverhead
